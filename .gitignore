@@ -1,0 +1,6 @@
+.pio/
+.idea/
+.vscode/
+firmware.map
+data
+*.code-workspace
