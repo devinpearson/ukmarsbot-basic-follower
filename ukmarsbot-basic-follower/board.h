@@ -17,9 +17,21 @@ const int MOTOR_LEFT_DIR = 7;
 const int MOTOR_RIGHT_DIR = 8;
 const int MOTOR_LEFT_PWM = 9;
 const int MOTOR_RIGHT_PWM = 10;
-const int EMITTER_A = 11;
 const int LED_RIGHT = 11;
+const int EMITTER_A = 11;
 const int EMITTER_B = 12;
+
+const int SENSOR_0 = A0;
+const int SENSOR_1 = A1;
+const int SENSOR_2 = A2;
+const int SENSOR_3 = A3;
+const int SENSOR_4 = A4;
+const int SENSOR_5 = A5;
+// names for the basic wall sensor channels
+const int RIGHT_WALL_SENSOR = A0;
+const int FRONT_WALL_SENSOR = A1;
+const int LEFT_WALL_SENSOR = A2;
+
 const int FUNCTION = A6;
 const int BATTERY_VOLTS = A7;
 #else
