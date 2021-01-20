@@ -5,7 +5,7 @@ const int SENSOR_COUNT = 4;
 const float MAX_MOTOR_VOLTS = 6.0;
 
 const int EEPROM_ADDR_SETTINGS = 0x0000;
-#define SETTINGS_SIGNATURE 0xF1F0C00F
+#define SETTINGS_VERSION 0x03
 // encoder polarity is either 1 or -1 and is used to account for reversal of the encoder phases
 #define ENCODER_LEFT_POLARITY (-1)
 #define ENCODER_RIGHT_POLARITY (1)

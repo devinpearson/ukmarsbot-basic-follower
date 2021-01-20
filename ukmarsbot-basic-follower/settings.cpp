@@ -6,29 +6,9 @@
 
 SettingsData settings;
 
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
- * Use of this source code is governed by a BSD-style license that can be
- * found in the chromiumos LICENSE file.
- * Return CRC-8 of the data, using x^8 + x^2 + x + 1 polynomial.  A
- * table-based algorithm would be faster, but for only a few bytes it isn't
- * worth the code size. */
-uint8_t crc8(const void* vptr, int len) {
-  const uint8_t* data = (const uint8_t*)vptr;
-  unsigned crc = 0;
-  int i, j;
-  for (j = len; j; j--, data++) {
-    crc ^= (*data << 8);
-    for (i = 8; i; i--) {
-      if (crc & 0x8000)
-        crc ^= (0x1070 << 3);
-      crc <<= 1;
-    }
-  }
-  return (uint8_t)(crc >> 8);
-}
 
 const SettingsData defaults = {
-  signature : SETTINGS_SIGNATURE,
+  version : SETTINGS_VERSION,
   flags : (1 << 3) | (1 << 4),
   mode : 0,
   mmPerCount : DEFAULTS_MM_PER_COUNT,
@@ -57,42 +37,20 @@ const SettingsData defaults = {
 /****************************************************************************/
 // REMEMBER to change the signature if the settings structure changes or badness will follow
 
-uint8_t settingsChecksum(SettingsData& s) {
-  return crc8(&s, sizeof(SettingsData));
-}
 
 void settingsRead() {
-  const int ERR_CHECKSUM = 1;
-  const int ERR_SIGNATURE = 2;
-  uint8_t eepromChecksum;
   SettingsData s;
   EEPROM.get(EEPROM_ADDR_SETTINGS, s);
-  EEPROM.get(EEPROM_ADDR_SETTINGS + sizeof(SettingsData), eepromChecksum);
-  int error = 0;
-  if (eepromChecksum != settingsChecksum(s)) {
-    error += ERR_CHECKSUM;
-  }
-  if (s.signature != SETTINGS_SIGNATURE) {
-    error += ERR_SIGNATURE;
-  }
-  if (error == 0) {
-    settings = s;
-    return;
-  }
-  Serial.println(F("Error reading EEPROM settings"));
-  if (error & ERR_CHECKSUM) {
-    Serial.println(F(" - checksum error"));
-  }
-  if (error & ERR_SIGNATURE) {
-    Serial.println(F(" - signature error"));
-  }
-  Serial.println(F("Using defaults"));
+  if (s.version != SETTINGS_VERSION) {
+    Serial.println(F("version change - settings to defaults"));
   settingsReset();
+  } else {
+    settings = s;
+  }
 }
 
 void settingsWrite() {
   EEPROM.put(EEPROM_ADDR_SETTINGS, settings);
-  EEPROM.put(EEPROM_ADDR_SETTINGS + sizeof(SettingsData), settingsChecksum(settings));
 }
 
 void settingsReset() {

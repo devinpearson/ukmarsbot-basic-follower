@@ -25,7 +25,7 @@ const uint32_t BAUDRATE = 115200;
 
 // sometimes the controller needs the interval, sometimes the frequency
 // define one and pre-calculate the other. The compiler does the work and no flash or
-// RAM storage is used. Consants are used for better type checking and traceability.
+// RAM storage is used. Constants are used for better type checking and traceability.
 const float LOOP_FREQUENCY = 500.0;
 const float LOOP_INTERVAL = (1.0 / LOOP_FREQUENCY);
 
