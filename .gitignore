@@ -4,3 +4,5 @@
 firmware.map
 data
 *.code-workspace
+firmware.lst
+
