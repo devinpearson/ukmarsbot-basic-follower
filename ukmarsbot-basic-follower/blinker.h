@@ -1,6 +1,7 @@
 #ifndef BLINKER_H
 #define BLINKER_H
 #include <Arduino.h>
+#include "digitalWriteFast.h"
 
 class Blinker {
  public:
@@ -45,11 +46,11 @@ class Blinker {
         mTickTime += (mPeriod * mDuty) / 100;
       }
       if (mDuty == 0) {
-        digitalWrite(mPin, 0);
+        digitalWriteFast(mPin, 0);
       } else if (mDuty == 100) {
-        digitalWrite(mPin, 1);
+        digitalWriteFast(mPin, 1);
       } else {
-        digitalWrite(mPin, mState);
+        digitalWriteFast(mPin, mState);
       }
     }
     return static_cast<Blinker&>(*this);

@@ -2,6 +2,7 @@
 #include "motors.h"
 #include <arduino.h>
 #include "settings.h"
+#include "digitalWriteFast.h"
 
 /****************************************************************************/
 /*   MOTORS and PWM                                                         */
@@ -13,10 +14,10 @@
 void setLeftMotorPWM(int pwm) {
   pwm = MOTOR_LEFT_POLARITY * constrain(pwm, -255, 255);
   if (pwm < 0) {
-    digitalWrite(MOTOR_LEFT_DIR, 1);
+    digitalWriteFast(MOTOR_LEFT_DIR, 1);
     analogWrite(MOTOR_LEFT_PWM, -pwm);
   } else {
-    digitalWrite(MOTOR_LEFT_DIR, 0);
+    digitalWriteFast(MOTOR_LEFT_DIR, 0);
     analogWrite(MOTOR_LEFT_PWM, pwm);
   }
 }
@@ -24,10 +25,10 @@ void setLeftMotorPWM(int pwm) {
 void setRightMotorPWM(int pwm) {
   pwm = MOTOR_RIGHT_POLARITY * constrain(pwm, -255, 255);
   if (pwm < 0) {
-    digitalWrite(MOTOR_RIGHT_DIR, 1);
+    digitalWriteFast(MOTOR_RIGHT_DIR, 1);
     analogWrite(MOTOR_RIGHT_PWM, -pwm);
   } else {
-    digitalWrite(MOTOR_RIGHT_DIR, 0);
+    digitalWriteFast(MOTOR_RIGHT_DIR, 0);
     analogWrite(MOTOR_RIGHT_PWM, pwm);
   }
 }
@@ -68,10 +69,10 @@ void motorSetup() {
   pinMode(MOTOR_RIGHT_DIR, OUTPUT);
   pinMode(MOTOR_LEFT_PWM, OUTPUT);
   pinMode(MOTOR_RIGHT_PWM, OUTPUT);
-  digitalWrite(MOTOR_LEFT_PWM, 0);
-  digitalWrite(MOTOR_LEFT_DIR, 0);
-  digitalWrite(MOTOR_RIGHT_PWM, 0);
-  digitalWrite(MOTOR_RIGHT_DIR, 0);
+  digitalWriteFast(MOTOR_LEFT_PWM, 0);
+  digitalWriteFast(MOTOR_LEFT_DIR, 0);
+  digitalWriteFast(MOTOR_RIGHT_PWM, 0);
+  digitalWriteFast(MOTOR_RIGHT_DIR, 0);
   pwmSetup();
 }
 

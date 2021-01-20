@@ -8,6 +8,7 @@
 #include "settings.h"
 #include "streaming.h"
 #include "systick.h"
+#include "digitalWriteFast.h"
 #include "twiddle.h"
 
 void cmdFilter(float f) {

@@ -1,6 +1,7 @@
 #include "sensors.h"
 #include <arduino.h>
 #include "board.h"
+#include "digitalWriteFast.h"
 #include "motion.h"
 #include "settings.h"
 
@@ -67,7 +68,7 @@ float steeringUpdate() {
     gLineLock = false;
     err = errMax * gLineErrorDirection;
   }
-  digitalWrite(13, gLineLock);
+  digitalWriteFast(13, gLineLock);
 
   float pTerm = settings.lineKP * err;
   float dTerm = settings.lineKD * (err - oldError);
@@ -123,14 +124,14 @@ void sensorsUpdate() {
   for (int i = 0; i < SENSOR_COUNT; i++) {
     tmp[i] = analogRead(A0 + i);
   }
-  digitalWrite(EMITTER_B, 1);
+  digitalWriteFast(EMITTER_B, 1);
   // allow the detector response to rise close to final value
   delayMicroseconds(DEFAULTS_EMITTER_ON_TIME);
   // read only the wall/line sensor differences
   for (int i = 0; i < SENSOR_COUNT; i++) {
     sensor[i] = analogRead(A0 + i) - tmp[i];
   }
-  digitalWrite(EMITTER_B, 0);
+  digitalWriteFast(EMITTER_B, 0);
 }
 
 bool turnMarker() {

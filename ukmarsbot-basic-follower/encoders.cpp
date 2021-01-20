@@ -1,6 +1,6 @@
 #include "encoders.h"
 #include <arduino.h>
-
+#include "digitalWriteFast.h"
 #include "settings.h"
 
 /****************************************************************************/
@@ -155,8 +155,8 @@ float getEncoderOmega() {
 ISR(INT0_vect) {
   static bool oldA = 0;
   static bool oldB = 0;
-  bool newB = digitalRead(ENCODER_LEFT_B);
-  bool newA = digitalRead(ENCODER_LEFT_CLK) ^ newB;
+  bool newB = digitalReadFast(ENCODER_LEFT_B);
+  bool newA = digitalReadFast(ENCODER_LEFT_CLK) ^ newB;
   int delta = ENCODER_LEFT_POLARITY * ((oldA ^ newB) - (newA ^ oldB));
   encoderLeftCount += delta;
   oldA = newA;
@@ -169,8 +169,8 @@ ISR(INT0_vect) {
 ISR(INT1_vect) {
   static bool oldA = 0;
   static bool oldB = 0;
-  bool newB = digitalRead(ENCODER_RIGHT_B);
-  bool newA = digitalRead(ENCODER_RIGHT_CLK) ^ newB;
+  bool newB = digitalReadFast(ENCODER_RIGHT_B);
+  bool newA = digitalReadFast(ENCODER_RIGHT_CLK) ^ newB;
   int delta = ENCODER_RIGHT_POLARITY * ((oldA ^ newB) - (newA ^ oldB));
   encoderRightCount += delta;
   oldA = newA;
