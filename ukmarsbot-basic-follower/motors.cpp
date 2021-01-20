@@ -1,19 +1,17 @@
 
 #include "motors.h"
 #include <arduino.h>
-#include "analog.h"
 #include "settings.h"
 
 /****************************************************************************/
 /*   MOTORS and PWM                                                         */
 /****************************************************************************/
 
-
 /**
  * Direct register access could be used here for enhanced performance
  */
 void setLeftMotorPWM(int pwm) {
-  pwm = constrain(pwm, -255, 255);
+  pwm = MOTOR_LEFT_POLARITY * constrain(pwm, -255, 255);
   if (pwm < 0) {
     digitalWrite(MOTOR_LEFT_DIR, 1);
     analogWrite(MOTOR_LEFT_PWM, -pwm);
@@ -22,8 +20,9 @@ void setLeftMotorPWM(int pwm) {
     analogWrite(MOTOR_LEFT_PWM, pwm);
   }
 }
+
 void setRightMotorPWM(int pwm) {
-  pwm = constrain(pwm, -255, 255);
+  pwm = MOTOR_RIGHT_POLARITY * constrain(pwm, -255, 255);
   if (pwm < 0) {
     digitalWrite(MOTOR_RIGHT_DIR, 1);
     analogWrite(MOTOR_RIGHT_PWM, -pwm);
@@ -37,9 +36,9 @@ void setLeftMotorVolts(float volts) {
   int motorPWM = (255 * volts) / batteryVolts;
   setLeftMotorPWM(motorPWM);
 }
+
 void setRightMotorVolts(float volts) {
-  // reverse the right motor
-  int motorPWM = (-255 * volts) / batteryVolts;
+  int motorPWM = (255 * volts) / batteryVolts;
   setRightMotorPWM(motorPWM);
 }
 
@@ -64,8 +63,7 @@ void pwmSetup(int frequency = PWM_488_HZ) {
   }
 }
 
-
-void motorSetup(){
+void motorSetup() {
   pinMode(MOTOR_LEFT_DIR, OUTPUT);
   pinMode(MOTOR_RIGHT_DIR, OUTPUT);
   pinMode(MOTOR_LEFT_PWM, OUTPUT);

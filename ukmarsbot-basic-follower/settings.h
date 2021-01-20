@@ -9,8 +9,8 @@ struct SettingsData {
   uint32_t signature;
   uint8_t flags;
   uint8_t mode;
-  float countsPerMm;
-  float countsPerDeg;
+  float mmPerCount;
+  float degPerCount;
   float fwdKP;
   float fwdKD;
   float rotKP;

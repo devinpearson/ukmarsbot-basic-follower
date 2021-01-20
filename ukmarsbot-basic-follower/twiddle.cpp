@@ -1,9 +1,7 @@
 #include "twiddle.h"
-#include "cli_commands.h"
+#include "commands.h"
 #include "motion.h"
 #include "settings.h"
-
-float twiddleSpeed = 500;
 /**********************************************************************/
 Twiddle::Twiddle(int paramCount, float *iparams[], EvalFunc *evaluator = nullptr)  // Constructor
 /**********************************************************************/
@@ -15,7 +13,7 @@ Twiddle::Twiddle(int paramCount, float *iparams[], EvalFunc *evaluator = nullptr
   mEval = evaluator;
   for (int i = 0; i < mParamCount; i++) {
     params[i] = iparams[i];
-    deltas[i] = *params[i] / 10.0f;
+    deltas[i] = *params[i] / 4.0f;
   }
 }
 

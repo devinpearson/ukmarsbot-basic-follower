@@ -1,6 +1,5 @@
 #include "motion.h"
 #include <arduino.h>
-#include "analog.h"
 #include "defaults.h"
 #include "encoders.h"
 #include "motors.h"
@@ -46,7 +45,7 @@ float leftFeedForward(float speed) {
   } else {
     leftFF += speed * settings.leftFFSpeedRev - settings.leftFFStaticRev;
   }
-  float acc = (speed - oldSpeed) * (1 / LOOP_INTERVAL);
+  float acc = (speed - oldSpeed) * LOOP_FREQUENCY;
   oldSpeed = speed;
   leftFF += settings.leftFFAccFwd * acc;
   return leftFF;
@@ -61,7 +60,7 @@ float rightFeedForward(float speed) {
     rightFF += speed * settings.rightFFSpeedRev - settings.rightFFStaticRev;
   }
 
-  float acc = (speed - oldSpeed) * (1 / LOOP_INTERVAL);
+  float acc = (speed - oldSpeed) * LOOP_FREQUENCY;
   oldSpeed = speed;
   rightFF += settings.rightFFAccFwd * acc;
   return rightFF;
@@ -75,7 +74,7 @@ void motionUpdate() {
   if (!motionEnabled) {
     return;
   }
-  float tangentSpeed = rot.mCurrentSpeed * DEFAULTS_MOUSE_RADIUS * (1 / 57.29);
+  float tangentSpeed = rot.mCurrentSpeed * MOUSE_RADIUS * (1 / 57.29);
   float leftSpeed = fwd.mCurrentSpeed - tangentSpeed;
   float rightSpeed = fwd.mCurrentSpeed + tangentSpeed;
   leftVolts += leftFeedForward(leftSpeed);
@@ -169,6 +168,7 @@ void Profile::update() {
     mCurrentSpeed = mEndSpeed;
   }
   /////////
+  mCurrentSpeed += mAdjustment;
   if (mCurrentSpeed < mTargetSpeed) {
     mCurrentSpeed += mAcceleration * LOOP_INTERVAL;
     if (mCurrentSpeed > mTargetSpeed) {
@@ -181,8 +181,7 @@ void Profile::update() {
     }
   }
   ///////////
-  mCurrentSpeed += mAdjustment;
-  mPosition += (mCurrentSpeed) * LOOP_INTERVAL;
+  mPosition += (mCurrentSpeed)*LOOP_INTERVAL;
 }
 
 void Profile::setMode(int mode) {

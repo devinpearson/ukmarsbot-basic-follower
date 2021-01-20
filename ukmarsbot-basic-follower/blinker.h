@@ -23,9 +23,7 @@ class Blinker {
     return static_cast<Blinker&>(*this);
   }
 
-  uint8_t getDuty(){
-    return mDuty;
-  }
+  uint8_t getDuty() { return mDuty; }
 
   Blinker& on() {
     setDuty(100);
@@ -38,7 +36,6 @@ class Blinker {
   }
 
   Blinker& update(bool now = false) {
-
     if (now || millis() > mTickTime) {
       if (mState == 1) {
         mState = 0;

@@ -2,7 +2,7 @@
 #define SYSTICK_H
 #include <stdint.h>
 
-extern volatile  uint32_t ticks;
+extern volatile uint32_t ticks;
 void setupSystick(int frequency);
 
 #endif

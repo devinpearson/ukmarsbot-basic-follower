@@ -3,7 +3,6 @@
 #define Twiddle_h
 #include "Arduino.h"
 typedef float(EvalFunc)();
-extern float twiddleSpeed;
 
 //********************************************************************** /
 /***
@@ -26,7 +25,7 @@ extern float twiddleSpeed;
  *
  */
 class Twiddle {
-public:
+ public:
   Twiddle(int paramCount, float *iparams[], EvalFunc *evaluator);
   void logStep();
   void logTrial(float err);

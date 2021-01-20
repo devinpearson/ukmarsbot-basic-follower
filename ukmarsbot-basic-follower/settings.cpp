@@ -26,14 +26,13 @@ uint8_t crc8(const void* vptr, int len) {
   }
   return (uint8_t)(crc >> 8);
 }
-/* end copyright section */
 
 const SettingsData defaults = {
   signature : SETTINGS_SIGNATURE,
   flags : (1 << 3) | (1 << 4),
   mode : 0,
-  countsPerMm : DEFAULTS_COUNTS_PER_MM,
-  countsPerDeg : DEFAULTS_COUNTS_PER_DEG,
+  mmPerCount : DEFAULTS_MM_PER_COUNT,
+  degPerCount : DEFAULTS_DEG_PER_COUNT,
   fwdKP : DEFAULTS_FWD_KP,
   fwdKD : DEFAULTS_FWD_KD,
   rotKP : DEFAULTS_ROT_KP,
@@ -80,6 +79,7 @@ void settingsRead() {
     settings = s;
     return;
   }
+  Serial.println(F("Error reading EEPROM settings"));
   if (error & ERR_CHECKSUM) {
     Serial.println(F(" - checksum error"));
   }

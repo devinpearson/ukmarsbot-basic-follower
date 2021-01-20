@@ -1,18 +1,16 @@
 
 #include <Arduino.h>
 // #include "PID_v1.h"
-#include "analog.h"
 #include "blinker.h"
 #include "board.h"
 #include "cli.h"
-#include "cli_commands.h"
+#include "commands.h"
 #include "encoders.h"
 #include "motion.h"
 #include "motors.h"
 #include "sensors.h"
 #include "settings.h"
 #include "systick.h"
-#include "twiddle.h"
 
 Blinker blinker = Blinker(LED_BUILTIN).setPeriod(1000).setDuty(50);
 
@@ -20,6 +18,8 @@ Blinker blinker = Blinker(LED_BUILTIN).setPeriod(1000).setDuty(50);
 float map(long x, long in_min, long in_max, float out_min, float out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
+
+uint32_t updateInterval = 10;  // milliseconds
 
 /****************************************************************************/
 
@@ -53,8 +53,11 @@ void setup() {
   Serial.println(settings.rightFFSpeedFwd, 5);
   Serial.println(settings.leftFFStaticFwd, 5);
   Serial.println(settings.rightFFStaticFwd, 5);
-  Serial.println(DEFAULTS_COUNTS_PER_MM);
-  Serial.println(DEFAULTS_COUNTS_PER_DEG);
+  Serial.println(settings.fwdKP, 5);
+  Serial.println(settings.fwdKD, 5);
+  Serial.println(settings.mmPerCount, 5);
+  Serial.println(settings.degPerCount, 5);
+
   setupSystick(1000);
   pinMode(USER_IO, OUTPUT);
   pinMode(EMITTER_A, OUTPUT);
@@ -83,53 +86,49 @@ void execute() {
     settingsReset();
     Serial.println(F("OK - Settings cleared to defaults and saved to EEPROM"));
   } else if (strcmp_P(args.argv[0], PSTR("FUDGE")) == 0) {
-    cliSetGet(settings.fudge, 0.0f, 10.0f, args);
+    cmdSetGet(settings.fudge, 0.0f, 10.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("FWDKP")) == 0) {
-    cliSetGet(fwd.mKP, 0.0f, 10.0f, args);
+    cmdSetGet(fwd.mKP, 0.0f, 10.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("FWDKD")) == 0) {
-    cliSetGet(fwd.mKD, 0.0f, 10.0f, args);
+    cmdSetGet(fwd.mKD, 0.0f, 10.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("ROTKP")) == 0) {
-    cliSetGet(rot.mKP, 0.0f, 10.0f, args);
+    cmdSetGet(rot.mKP, 0.0f, 10.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("ROTKD")) == 0) {
-    cliSetGet(rot.mKD, 0.0f, 10.0f, args);
+    cmdSetGet(rot.mKD, 0.0f, 10.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("LINEKP")) == 0) {
-    cliSetGet(settings.lineKP, 0.0f, 2000.0f, args);
+    cmdSetGet(settings.lineKP, 0.0f, 50.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("LINEKD")) == 0) {
-    cliSetGet(settings.lineKD, 0.0f, 2000.0f, args);
+    cmdSetGet(settings.lineKD, 0.0f, 50.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("BATT")) == 0) {
     Serial.print(batteryVolts, 2);
     Serial.println(F(" Volts"));
-  } else if (strcmp_P(args.argv[0], PSTR("FUNC")) == 0) {
-    cliShowFunction(args);
   } else if (strcmp_P(args.argv[0], PSTR("BEEP")) == 0) {
     motorBeep(500);
     motorBeep(1000);
   } else if (strcmp_P(args.argv[0], PSTR("ENC")) == 0) {
-    cliShowEncoders(args);
+    cmdShowEncoders(args);
   } else if (strcmp_P(args.argv[0], PSTR("BLINK")) == 0) {
-    cliSetGet(blinker.mDuty, int8_t(0), int8_t(100), args);
+    cmdSetGet(blinker.mDuty, int8_t(0), int8_t(100), args);
+  } else if (strcmp_P(args.argv[0], PSTR("PWM")) == 0) {
+    cmdTestMotors(args);
   } else if (strcmp_P(args.argv[0], PSTR("ROT")) == 0) {
-    cliTestRot(args);
+    cmdTestRot(args);
   } else if (strcmp_P(args.argv[0], PSTR("FWD")) == 0) {
-    cliTestFwd(args);
+    cmdTestFwd(args);
   } else if (strcmp_P(args.argv[0], PSTR("MOVE")) == 0) {
-    cliTestMove(args);
+    cmdTestMove(args);
   } else if (strcmp_P(args.argv[0], PSTR("TURN")) == 0) {
-    cliTestTurn(args);
+    cmdTestTurn(args);
   } else if (strcmp_P(args.argv[0], PSTR("SPIN")) == 0) {
-    cliTestSpin(args);
+    cmdTestSpin(args);
   } else if (strcmp_P(args.argv[0], PSTR("LINECAL")) == 0) {
-    cliLineCalibrate(args);
+    cmdLineCalibrate(args);
   } else if (strcmp_P(args.argv[0], PSTR("WALLCAL")) == 0) {
-    cliWallCalibrate(args);
+    cmdWallCalibrate(args);
   } else if (strcmp_P(args.argv[0], PSTR("FOLLOW")) == 0) {
-    cliFollowLine(args);
+    cmdFollowLine(args);
   } else if (strcmp_P(args.argv[0], PSTR("TWIDDLE")) == 0) {
-    twiddleSpeed = 500;
-    if (args.argc > 1) {
-      twiddleSpeed = atof(args.argv[1]);
-    }
-    cliTestTwiddle(args);
+    cmdTestTwiddle(args);
   } else if (strcmp_P(args.argv[0], PSTR("BRAKE")) == 0) {
     float dist = atof(args.argv[1]);
     float speed = atof(args.argv[2]);
@@ -140,14 +139,14 @@ void execute() {
   } else if (strcmp_P(args.argv[0], PSTR("LINE")) == 0) {
     sensorsEnable();
     while (!functionButtonPressed()) {
-      cliShowLineSensors(args);
+      cmdShowLineSensors(args);
       delay(50);
     }
     sensorsDisable();
   } else if (strcmp_P(args.argv[0], PSTR("WALL")) == 0) {
     sensorsEnable();
     while (!functionButtonPressed()) {
-      cliShowWallSensors(args);
+      cmdShowWallSensors(args);
       delay(50);
     }
     sensorsDisable();

@@ -1,6 +1,5 @@
-#include "cli_commands.h"
+#include "commands.h"
 #include <arduino.h>
-#include "analog.h"
 #include "cli.h"
 #include "encoders.h"
 #include "motion.h"
@@ -32,12 +31,10 @@ void cmdFilter(float f) {
     Serial.println(mag, 4);
   }
 }
-void cliShowLineSensors(Args& args) {
+void cmdShowLineSensors(Args& args) {
   for (int i = 0; i < SENSOR_COUNT; i++) {
     Serial << _JUSTIFY(abs(getSensor(i)), 5);
   }
-  Serial.print(F("  err: "));
-  Serial.print(getLineError(), 2);
 
   // float sum = fabsf(float(getSensor(1) + getSensor(2)));
   // float diff = float(getSensor(1) - getSensor(2));
@@ -46,7 +43,7 @@ void cliShowLineSensors(Args& args) {
   // Serial << _JUSTIFY(err, 5);
   Serial << endl;
 }
-void cliShowWallSensors(Args& args) {
+void cmdShowWallSensors(Args& args) {
   for (int i = 0; i < 3; i++) {
     Serial << _JUSTIFY(abs(getSensor(i)), 5);
   }
@@ -60,7 +57,7 @@ void cliShowWallSensors(Args& args) {
   Serial << endl;
 }
 
-void cliLineCalibrate(Args& args) {
+void cmdLineCalibrate(Args& args) {
   sensorsEnable();
   fwd.reset();
   rot.reset();
@@ -73,7 +70,7 @@ void cliLineCalibrate(Args& args) {
     if (a != angle) {
       angle = a;
       Serial << _JUSTIFY(angle, 5);
-      cliShowLineSensors(args);
+      cmdShowLineSensors(args);
     }
   }
   motionEnabled = false;
@@ -82,7 +79,7 @@ void cliLineCalibrate(Args& args) {
   sensorsDisable();
 }
 
-void cliWallCalibrate(Args& args) {
+void cmdWallCalibrate(Args& args) {
   sensorsEnable();
   fwd.reset();
   rot.reset();
@@ -95,7 +92,7 @@ void cliWallCalibrate(Args& args) {
     if (a != angle) {
       angle = a;
       Serial << _JUSTIFY(angle, 5);
-      cliShowWallSensors(args);
+      cmdShowWallSensors(args);
     }
   }
   motionEnabled = false;
@@ -104,34 +101,31 @@ void cliWallCalibrate(Args& args) {
   sensorsDisable();
 }
 
-void cliShowFront(Args& args) {
+void cmdShowFront(Args& args) {
 }
 
-void cliShowLeft(Args& args) {
+void cmdShowLeft(Args& args) {
 }
 
-void cliShowRight(Args& args) {
+void cmdShowRight(Args& args) {
 }
 
-void cliShowBattery(Args& args) {
+void cmdShowBattery(Args& args) {
 }
 
-void cliShowFunction(Args& args) {
-  while(!functionButtonPressed()){
-    Serial.println(functionSetting());
-  }
+void cmdShowFunction(Args& args) {
 }
 
-void cliShowEncoders(Args& args) {
+void cmdShowEncoders(Args& args) {
   Serial.println(F("Encoders:"));
   while (true) {
     Serial.print(F("Left = "));
     Serial.print(encoderLeftCount);
     Serial.print(F("  Right = "));
     Serial.print(encoderRightCount);
-    Serial.print(F("  Tot = "));
+    Serial.print(F("  FWD = "));
     Serial.print(encoderTotal);
-    Serial.print(F("  Rot = "));
+    Serial.print(F("  ROT = "));
     Serial.print(encoderRotation);
     Serial.println();
     if (functionButtonPressed()) {
@@ -155,16 +149,17 @@ void cliShowEncoders(Args& args) {
  * e.g. FWD  4.5 1000  => implies left = +4.5V, right = -4.5V, 1200ms run
  */
 
-void cliTestFwd(Args& args) {
+void cmdTestFwd(Args& args) {
   uint32_t endTime = 1000;
   int volts = 3;
   if (args.argc > 1) {
-    endTime = atol(args.argv[1]);
+    volts = atoi(args.argv[1]);
   }
   if (args.argc > 2) {
-    volts = atoi(args.argv[2]);
+    endTime = atol(args.argv[2]);
   }
   encoderReset();
+  Serial.println(F("time(ms), encSpeed, encPos"));
   setLeftMotorVolts(volts);
   setRightMotorVolts(volts);
   uint32_t t = millis();
@@ -188,7 +183,7 @@ void cliTestFwd(Args& args) {
 enum { IDLE, STARTING, RUNNING, STOPPING, CROSSING };
 void sendLineHeader() {
   Serial.println();
-  Serial.println(F("time position Start Left Right Turn SteeringControl FastError adjust omega"));
+  Serial.println(F("time position Start Left Right Turn Error FastError rawError"));
 }
 void sendLineTelemetry(uint32_t t, float error) {
   int posNow = int(fwd.mPosition);
@@ -209,9 +204,7 @@ void sendLineTelemetry(uint32_t t, float error) {
   Serial.print(' ');
   Serial.print(error);
   Serial.print(' ');
-  Serial.print(rot.mAdjustment);
-  Serial.print(' ');
-  Serial.print(rot.mCurrentSpeed);
+  Serial.print(rawError);
   Serial.println();
 }
 
@@ -227,7 +220,7 @@ float lineTrial() {
   uint32_t trigger = millis();
   float errorSum = 0;
   uint32_t startTime = millis();
-  fwd.startMove(500, twiddleSpeed,twiddleSpeed, 4000);
+  fwd.startMove(500, 500, 500, 4000);
   enum {
     IDLE,
     STARTING,
@@ -239,25 +232,31 @@ float lineTrial() {
   digitalWrite(LED_RIGHT, 0);
   float error = 0;
   float slowFilter = 0;
-  float startPos = fwd.mPosition;
-  float target = startPos + 100;
   while (runState != STOPPING) {
+    uint8_t markers = startMarker() + 2 * turnMarker();
+    digitalWrite(LED_RIGHT, markers & 2);
+    digitalWrite(LED_LEFT, markers & 1);
     switch (runState) {
       case STARTING:
-        if (fwd.mPosition > target) {
-          target += 500;
-          error = 0;
-          slowFilter = 0;
-          errorSum = 0;
+        if (markers == 3) {
+          runState = CROSSING;
+        }
+        break;
+      case CROSSING:
+        if (markers == 0) {
           runState = RUNNING;
         }
         break;
       case RUNNING:
-        if (fwd.mPosition > target) {
+        if (markers == 3) {
           runState = STOPPING;
         }
         break;
     }
+    if (fwd.mPosition > 2520) {
+      runState = STOPPING;
+    }
+
     if (millis() > trigger) {
       trigger += 5;
       if (functionButtonPressed()) {
@@ -274,16 +273,16 @@ float lineTrial() {
   Serial.print(F("\nError Sum: "));
   Serial.print(errorSum);
   Serial.println('\n');
-  // sensorsDisable();
-  // setLeftMotorVolts(0);
-  // setRightMotorVolts(0);
+  sensorsDisable();
+  setLeftMotorVolts(0);
+  setRightMotorVolts(0);
   delay(250);
-  // motionEnabled = false;
-  // gSteeringEnabled = false;
+  motionEnabled = false;
+  gSteeringEnabled = false;
   return errorSum;
 }
 
-void cliTestTwiddle(Args& args) {
+void cmdTestTwiddle(Args& args) {
   motionInit();
   float* params[2] = {&settings.lineKP, &settings.lineKD};
   Serial.print(*params[0], 6);
@@ -295,7 +294,7 @@ void cliTestTwiddle(Args& args) {
   tw.go();
 }
 
-float cliFollowLine(Args& args) {
+float cmdFollowLine(Args& args) {
   float speed = 500;
   if (args.argc > 1) {
     speed = atof(args.argv[1]);
@@ -356,9 +355,6 @@ float cliFollowLine(Args& args) {
     if (fwd.mPosition > 2520) {
       runState = STOPPING;
     }
-    if (fwd.mPosition > 200 && gLineLock == false) {
-      runState = STOPPING;
-    }
 
     if (millis() > trigger) {
       trigger += 5;
@@ -368,16 +364,14 @@ float cliFollowLine(Args& args) {
       slowFilter += 0.3 * (gSteeringControl - slowFilter);
       error = fabsf(slowFilter - gSteeringControl);
       errorSum += error;
-      sendLineTelemetry(millis() - startTime, rawError);
+      sendLineTelemetry(millis() - startTime, error);
     }
   }
   while (functionButtonPressed()) {
   }
-      fwd.startMove(320, speed, 0, 4000);
-
-  // Serial.print(F("\n==========================\n\nError Sum: \""));
-  // Serial.print(errorSum);
-  // Serial.println(F("\"\n"));
+  Serial.print(F("\n==========================\n\nError Sum: \""));
+  Serial.print(errorSum);
+  Serial.println(F("\"\n"));
   sensorsDisable();
   setLeftMotorVolts(0);
   setRightMotorVolts(0);
@@ -402,7 +396,7 @@ float cliFollowLine(Args& args) {
  * e.g. FWD 1200 4.5
  */
 
-void cliTestRot(Args& args) {
+void cmdTestRot(Args& args) {
   uint32_t endTime = 1500;
   int volts = 3;
   if (args.argc > 1) {
@@ -468,9 +462,8 @@ void sendProfileData(int timeStamp, Profile& prof) {
   Serial.println();
 }
 
-void cliTestMove(Args& args) {
+void cmdTestMove(Args& args) {
   uint32_t t = millis();
-
   float dist = atof(args.argv[1]);
   float topSpeed = atof(args.argv[2]);
   float endSpeed = atof(args.argv[3]);
@@ -484,11 +477,7 @@ void cliTestMove(Args& args) {
   if (accel == 0) {
     accel = 2000;
   }
-dist = 100;
-topSpeed = 100;
-accel = 1000;
-endSpeed = 0;
-
+  waitForButtonClick();
   delay(500);
   sendProfileHeader();
   encoderReset();
@@ -501,22 +490,40 @@ endSpeed = 0;
     sendProfileData(millis() - t, fwd);
   }
 
-  // rot.startMove(180, 600, 0, 3000);
-  // while (rot.mState != Profile::FINISHED) {
-  //   sendProfileData(millis() - t, fwd);
-  // }
-  // fwd.startMove(500, 600, 0, 2000);
-  // while (fwd.mState != Profile::FINISHED) {
-  //   sendProfileData(millis() - t, fwd);
-  // }
-
   motionEnabled = false;
   setLeftMotorVolts(0);
   setRightMotorVolts(0);
   Serial.println();
 }
 
-void cliTestSpin(Args& args) {
+void cmdTestMotors(Args& args) {
+  float leftVolts = atof(args.argv[1]);
+  float rightVolts = atof(args.argv[2]);
+  encoderReset();
+  fwd.reset();
+  rot.reset();
+  setLeftMotorVolts(leftVolts);
+  setRightMotorVolts(rightVolts);
+  while (true) {
+    Serial.print(F("Left = "));
+    Serial.print(encoderLeftCount);
+    Serial.print(F("  Right = "));
+    Serial.print(encoderRightCount);
+    Serial.print(F("  FWD = "));
+    Serial.print(encoderTotal);
+    Serial.print(F("  ROT = "));
+    Serial.print(encoderRotation);
+    Serial.println();
+    if (functionButtonPressed()) {
+      break;
+    }
+  }
+  setLeftMotorVolts(0);
+  setRightMotorVolts(0);
+  Serial.println();
+}
+
+void cmdTestSpin(Args& args) {
   uint32_t t = millis();
   float dist = atof(args.argv[1]);
   float topSpeed = atof(args.argv[2]);
@@ -546,7 +553,7 @@ void cliTestSpin(Args& args) {
   Serial.println();
 }
 
-void cliTestTurn(Args& args) {
+void cmdTestTurn(Args& args) {
   uint32_t t = millis();
   float dist = atof(args.argv[1]);
   float speed = atof(args.argv[2]);
@@ -570,7 +577,6 @@ void cliTestTurn(Args& args) {
   fwd.reset();
   rot.reset();
   motionEnabled = true;
-
   fwd.startMove(300, speed, speed, 2500);
   while (!fwd.isFinished()) {
   }
@@ -579,11 +585,9 @@ void cliTestTurn(Args& args) {
   while (rot.mState != Profile::FINISHED) {
     sendProfileData(millis() - t, rot);
   }
-
   fwd.startMove(300, speed, 0, 2500);
   while (!fwd.isFinished()) {
   }
-
   motionEnabled = false;
   setLeftMotorVolts(0);
   setRightMotorVolts(0);

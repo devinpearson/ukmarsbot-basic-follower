@@ -1,5 +1,6 @@
-#include <arduino.h>
 #include "cli.h"
+#include <arduino.h>
+
 const int INPUT_BUFFER_SIZE = 32;
 // extern char inputLine[INPUT_BUFFER_SIZE];
 

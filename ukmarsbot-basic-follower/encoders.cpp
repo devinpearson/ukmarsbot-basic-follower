@@ -1,6 +1,6 @@
 #include "encoders.h"
 #include <arduino.h>
-#include "digitalWriteFast.h"
+
 #include "settings.h"
 
 /****************************************************************************/
@@ -52,10 +52,10 @@ float encoderPosition;
 float encoderAngle;
 int encoderLeftCount;
 int encoderRightCount;
-int32_t encoderTotal;
-int32_t encoderRotation;
 float encoderSpeed;
 float encoderOmega;
+int32_t encoderTotal;
+int32_t encoderRotation;
 
 /***
  * NOTE: the number of samples used for averaging has a big effect on
@@ -73,8 +73,6 @@ void encoderReset() {
   noInterrupts();
   encoderLeftCount = 0;
   encoderRightCount = 0;
-  encoderTotal = 0;
-  encoderRotation = 0;
   encoderPosition = 0;
   encoderAngle = 0;
   for (int i = 0; i < AVERAGER_SAMPLES; i++) {
@@ -122,9 +120,9 @@ void encoderUpdate() {
   encoderSpeed = encoderSpeedSum * (1.0f / AVERAGER_SAMPLES);
 
   // encoderSpeed = encoderSum;
-  encoderSpeed *= 1.0f / settings.countsPerMm;
+  encoderSpeed *= settings.mmPerCount;
   encoderPosition += encoderSpeed;
-  encoderSpeed *= 1.0f / LOOP_INTERVAL;
+  encoderSpeed *= LOOP_FREQUENCY;
 
   // Angular motion
 
@@ -133,9 +131,9 @@ void encoderUpdate() {
   encoderOmegaSum += encoderDiffHistory[encoderIndex];
   encoderOmega = encoderOmegaSum;
   encoderOmega *= 1.0f / AVERAGER_SAMPLES;
-  encoderOmega *= 1.0f / settings.countsPerDeg;
+  encoderOmega *= settings.degPerCount;
   encoderAngle += encoderOmega;
-  encoderOmega *= 1.0f / LOOP_INTERVAL;
+  encoderOmega *= LOOP_FREQUENCY;
 
   encoderIndex += 1;
   if (encoderIndex >= AVERAGER_SAMPLES) {
@@ -157,10 +155,10 @@ float getEncoderOmega() {
 ISR(INT0_vect) {
   static bool oldA = 0;
   static bool oldB = 0;
-  bool newB = digitalReadFast(ENCODER_LEFT_B);
-  bool newA = digitalReadFast(ENCODER_LEFT_CLK) ^ newB;
-  int delta = (oldA ^ newB) - (newA ^ oldB);
-  encoderLeftCount -= delta;  // run the left encoder backwards
+  bool newB = digitalRead(ENCODER_LEFT_B);
+  bool newA = digitalRead(ENCODER_LEFT_CLK) ^ newB;
+  int delta = ENCODER_LEFT_POLARITY * ((oldA ^ newB) - (newA ^ oldB));
+  encoderLeftCount += delta;
   oldA = newA;
   oldB = newB;
 }
@@ -171,9 +169,9 @@ ISR(INT0_vect) {
 ISR(INT1_vect) {
   static bool oldA = 0;
   static bool oldB = 0;
-  bool newB = digitalReadFast(ENCODER_RIGHT_B);
-  bool newA = digitalReadFast(ENCODER_RIGHT_CLK) ^ newB;
-  int delta = (oldA ^ newB) - (newA ^ oldB);
+  bool newB = digitalRead(ENCODER_RIGHT_B);
+  bool newA = digitalRead(ENCODER_RIGHT_CLK) ^ newB;
+  int delta = ENCODER_RIGHT_POLARITY * ((oldA ^ newB) - (newA ^ oldB));
   encoderRightCount += delta;
   oldA = newA;
   oldB = newB;

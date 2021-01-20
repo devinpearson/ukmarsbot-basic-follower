@@ -29,53 +29,49 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define STREAMING_LIBRARY_VERSION 5.1
 
-
 // Generic template
-template<class T>
-inline Print &operator <<(Print &stream, T arg) {
+template <class T>
+inline Print &operator<<(Print &stream, T arg) {
   stream.print(arg);
   return stream;
 }
 
-
 struct _BASED {
   long val;
   int base;
-  _BASED(long v, int b): val(v), base(b) {
-  }
+  _BASED(long v, int b) : val(v), base(b) {}
 };
 
 #if ARDUINO >= 100
 
 struct _BYTE_CODE {
   byte val;
-  _BYTE_CODE(byte v) : val(v) {
-  }
+  _BYTE_CODE(byte v) : val(v) {}
 };
-#define _BYTE(a)    _BYTE_CODE(a)
+#define _BYTE(a) _BYTE_CODE(a)
 
-inline Print &operator <<(Print &obj, const _BYTE_CODE &arg) {
+inline Print &operator<<(Print &obj, const _BYTE_CODE &arg) {
   obj.write(arg.val);
   return obj;
 }
 
 #else
 
-#define _BYTE(a)    _BASED(a, BYTE)
+#define _BYTE(a) _BASED(a, BYTE)
 
 #endif
 
-#define _HEX(a)     _BASED(a, HEX)
-#define _DEC(a)     _BASED(a, DEC)
-#define _OCT(a)     _BASED(a, OCT)
-#define _BIN(a)     _BASED(a, BIN)
+#define _HEX(a) _BASED(a, HEX)
+#define _DEC(a) _BASED(a, DEC)
+#define _OCT(a) _BASED(a, OCT)
+#define _BIN(a) _BASED(a, BIN)
 
 // Specialization for class _BASED
 // Thanks to Arduino forum user Ben Combee who suggested this
 // clever technique to allow for expressions like
 //   Serial << _HEX(a);
 
-inline Print &operator <<(Print &obj, const _BASED &arg) {
+inline Print &operator<<(Print &obj, const _BASED &arg) {
   obj.print(arg.val, arg.base);
   return obj;
 }
@@ -90,11 +86,10 @@ inline Print &operator <<(Print &obj, const _BASED &arg) {
 struct _FLOAT {
   float val;
   int digits;
-  _FLOAT(double v, int d): val(v), digits(d) {
-  }
+  _FLOAT(double v, int d) : val(v), digits(d) {}
 };
 
-inline Print &operator <<(Print &obj, const _FLOAT &arg) {
+inline Print &operator<<(Print &obj, const _FLOAT &arg) {
   obj.print(arg.val, arg.digits);
   return obj;
 }
@@ -107,8 +102,8 @@ inline Print &operator <<(Print &obj, const _FLOAT &arg) {
 
 enum _EndLineCode { endl };
 
-inline Print &operator <<(Print &obj, _EndLineCode arg) {
-  (void) arg;	// arg is a dummy parameter to get the signature match
+inline Print &operator<<(Print &obj, _EndLineCode arg) {
+  (void)arg;  // arg is a dummy parameter to get the signature match
   obj.println();
   return obj;
 }
@@ -120,11 +115,10 @@ inline Print &operator <<(Print &obj, _EndLineCode arg) {
 struct _FILL {
   char ch;
   int len;
-  _FILL(char c, int l): ch(c), len(l) {
-  }
+  _FILL(char c, int l) : ch(c), len(l) {}
 };
 
-inline Print &operator <<(Print &obj, const _FILL &arg) {
+inline Print &operator<<(Print &obj, const _FILL &arg) {
   for (int i = 0; i < arg.len; i++) {
     obj.write(arg.ch);
   }
@@ -138,11 +132,10 @@ struct _TIME {
   uint8_t hour;
   uint8_t minu;
   uint8_t sec;
-  _TIME(uint8_t h, uint8_t m, uint8_t s): hour(h), minu(m), sec(s) {
-  }
+  _TIME(uint8_t h, uint8_t m, uint8_t s) : hour(h), minu(m), sec(s) {}
 };
 
-inline Print &operator <<(Print &obj, const _TIME &arg) {
+inline Print &operator<<(Print &obj, const _TIME &arg) {
   obj.print(((arg.hour < 10) ? "0" : ""));
   obj.print(int(arg.hour));
   obj.print(((arg.minu < 10) ? ":0" : ":"));
@@ -152,7 +145,6 @@ inline Print &operator <<(Print &obj, const _TIME &arg) {
   return obj;
 }
 
-
 // Peter Harrison - Jan 2018
 // Allow an integer to be right aligned in a field of specified width
 // no attempt is made to guard against overflow - the field will overflow
@@ -161,10 +153,10 @@ inline Print &operator <<(Print &obj, const _TIME &arg) {
 struct _JUSTIFY {
   int val;
   int width;
-  _JUSTIFY(int v, int w) : val(v), width(w) {};
+  _JUSTIFY(int v, int w) : val(v), width(w){};
 };
 
-inline Print &operator <<(Print &obj, const _JUSTIFY &arg) {
+inline Print &operator<<(Print &obj, const _JUSTIFY &arg) {
   int v = arg.val;
   int w = arg.width;
   w--;
@@ -181,8 +173,5 @@ inline Print &operator <<(Print &obj, const _JUSTIFY &arg) {
   obj.print(arg.val);
   return obj;
 }
-
-
-
 
 #endif

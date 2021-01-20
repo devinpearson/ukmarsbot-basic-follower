@@ -3,7 +3,6 @@
 
 #include "config.h"
 
-
 #ifdef BOARD_UKMARSBOT_V1
 /**
  * Hardware pin defines
@@ -26,7 +25,6 @@ const int BATTERY_VOLTS = A7;
 #else
 #error "UNKOWN BOARD TYPE"
 #endif
-
 
 extern volatile float batteryVolts;
 
