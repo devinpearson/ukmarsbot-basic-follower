@@ -135,18 +135,24 @@ void execute() {
     float endspeed = atof(args.argv[3]);
     float deceleration = fwd.getBraking(dist, speed, endspeed);
     Serial.println(deceleration, 4);
-
   } else if (strcmp_P(args.argv[0], PSTR("LINE")) == 0) {
     sensorsEnable();
     while (!functionButtonPressed()) {
-      cmdShowLineSensors(args);
+      lineSensorShow();
       delay(50);
     }
     sensorsDisable();
   } else if (strcmp_P(args.argv[0], PSTR("WALL")) == 0) {
     sensorsEnable();
     while (!functionButtonPressed()) {
-      cmdShowWallSensors(args);
+      wallSensorShow();
+      delay(50);
+    }
+    sensorsDisable();
+  } else if (strcmp_P(args.argv[0], PSTR("SENSORS")) == 0) {
+    sensorsEnable();
+    while (!functionButtonPressed()) {
+      sensorsShow();
       delay(50);
     }
     sensorsDisable();

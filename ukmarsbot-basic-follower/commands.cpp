@@ -32,31 +32,7 @@ void cmdFilter(float f) {
     Serial.println(mag, 4);
   }
 }
-void cmdShowLineSensors(Args& args) {
-  for (int i = 0; i < SENSOR_COUNT; i++) {
-    Serial << _JUSTIFY(abs(getSensor(i)), 5);
-  }
 
-  // float sum = fabsf(float(getSensor(1) + getSensor(2)));
-  // float diff = float(getSensor(1) - getSensor(2));
-  //   int err = sum>20?200 * (diff / sum):0;
-  // Serial << _JUSTIFY(int(sum), 5);
-  // Serial << _JUSTIFY(err, 5);
-  Serial << endl;
-}
-void cmdShowWallSensors(Args& args) {
-  for (int i = 0; i < 3; i++) {
-    Serial << _JUSTIFY(abs(getSensor(i)), 5);
-  }
-
-  // float sum = fabsf(float(getSensor(0) + getSensor(2)));
-  // float diff = float(getSensor(0) - getSensor(2));
-  // int err = sum>20?200 * (diff / sum):0;
-
-  // Serial << _JUSTIFY(int(sum), 5);
-  // Serial << _JUSTIFY(err, 5);
-  Serial << endl;
-}
 
 void cmdLineCalibrate(Args& args) {
   sensorsEnable();
@@ -71,7 +47,7 @@ void cmdLineCalibrate(Args& args) {
     if (a != angle) {
       angle = a;
       Serial << _JUSTIFY(angle, 5);
-      cmdShowLineSensors(args);
+      sensorsShow();
     }
   }
   motionEnabled = false;
@@ -93,7 +69,7 @@ void cmdWallCalibrate(Args& args) {
     if (a != angle) {
       angle = a;
       Serial << _JUSTIFY(angle, 5);
-      cmdShowWallSensors(args);
+      sensorsShow();
     }
   }
   motionEnabled = false;
@@ -101,6 +77,8 @@ void cmdWallCalibrate(Args& args) {
   setRightMotorVolts(0);
   sensorsDisable();
 }
+
+
 
 void cmdShowFront(Args& args) {
 }

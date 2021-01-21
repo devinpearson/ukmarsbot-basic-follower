@@ -4,6 +4,7 @@
 #include "digitalWriteFast.h"
 #include "motion.h"
 #include "settings.h"
+#include "streaming.h"
 
 volatile int sensor[SENSOR_COUNT];
 volatile float batteryVolts;
@@ -11,12 +12,34 @@ volatile int functionValue;
 volatile float gSteeringControl;
 bool gSteeringEnabled;
 
-bool gLineLock = false;
-int gLineErrorDirection = 0;
 static volatile bool sensorsEnabled = false;
 static float oldError;
 
 const float errMax = 400;
+
+/*** wall sensor variables ***/
+volatile int gSensorFrontWall;
+volatile int gSensorLeftWall;
+volatile int gSensorRightWall;
+// true if a wall is present
+volatile bool gLeftWall;
+volatile bool gFrontWall;
+volatile bool gRightWall;
+volatile float gSensorFrontError;  // zero when robot in cell centre
+
+/*** line sensor variables ***/
+// although the values need not be global variables, it is helpful
+// when debugging to be able to print them out
+volatile float gSensorStartMarker;
+volatile float gSensorTurnMarker;
+volatile float gSensorRight;
+volatile float gSensorLeft;
+volatile float gSensorSum;
+volatile float gSensorDifference;
+static int gLineErrorDirection = 0;
+
+/*** steering variables ***/
+volatile float gSensorCTE;
 
 /******************************************
  * Fast exponential functions
@@ -45,6 +68,7 @@ float adjustExponential(float value, float factor) {
   value *= errMax;
   return value;
 }
+
 volatile float rawError = 0;
 float steeringUpdate() {
   gSteeringControl = 0;
@@ -54,8 +78,8 @@ float steeringUpdate() {
   if (!gSteeringEnabled) {
     return 0;
   }
-  if (sum > 300) {
-    gLineLock = true;
+  if (sum > DEFAULTS_LINE_DETECT_THRESHOLD) {
+    digitalWriteFast(LED_BUILTIN, 1);
     err = diff / sum;
     if (err > errMax) {
       err = errMax;
@@ -65,10 +89,10 @@ float steeringUpdate() {
     }
     gLineErrorDirection = sgn(err);
   } else {
-    gLineLock = false;
+    // The line is lost but set a large error in the direction is was last seen
+    digitalWriteFast(LED_BUILTIN, 0);
     err = errMax * gLineErrorDirection;
   }
-  digitalWriteFast(13, gLineLock);
 
   float pTerm = settings.lineKP * err;
   float dTerm = settings.lineKD * (err - oldError);
@@ -85,6 +109,7 @@ void steeringReset() {
   oldError = 0;
   gSteeringControl = 0;
 }
+
 void sensorsEnable() {
   sensorsEnabled = true;
 }
@@ -110,6 +135,8 @@ void sensorsSetup() {
 }
 
 // basic sensor update takes about 250us with ADC clock prescaler of 16
+// reads all sensor chanels into an array for processing as needed
+// sensors are always read with a pulsed emitter
 void sensorsUpdate() {
   int tmp[SENSOR_COUNT];
   batteryVolts = analogRead(BATTERY_VOLTS) * (1 / 102.4);
@@ -134,10 +161,93 @@ void sensorsUpdate() {
   digitalWriteFast(EMITTER_B, 0);
 }
 
+void sensorsShow() {
+  for (int i = 0; i < 5; i++) {
+    Serial << _JUSTIFY(abs(getSensor(i)), 5);
+  }
+  Serial << endl;
+}
+
+/*********************************** Line tracking **************************/
+void lineSensorUpdate() {
+  gSensorStartMarker = sensor[0];
+  gSensorRight = sensor[1];
+  gSensorLeft = sensor[2];
+  gSensorTurnMarker = sensor[3];
+  if (gSensorStartMarker > DEFAULTS_RIGHT_MARKER_THRESHOLD) {
+    digitalWrite(LED_RIGHT, 1);
+  } else {
+    digitalWrite(LED_RIGHT, 0);
+  }
+  if (gSensorTurnMarker > DEFAULTS_LEFT_MARKER_THRESHOLD) {
+    digitalWrite(LED_LEFT, 1);
+  } else {
+    digitalWrite(LED_LEFT, 0);
+  }
+  gSensorSum = gSensorRight + gSensorLeft;
+  gSensorDifference = gSensorRight - gSensorLeft;
+  if (gSensorSum > DEFAULTS_LINE_DETECT_THRESHOLD) {
+    gSensorCTE = DEFAULTS_LINE_WIDTH * (gSensorDifference / gSensorSum);
+  } else {
+    gSensorCTE = 0;
+  }
+}
+
 bool turnMarker() {
   return getSensor(3) > 250;
 }
 
 bool startMarker() {
   return getSensor(0) > 250;
+}
+
+void lineSensorShow() {
+  Serial << _JUSTIFY(gSensorLeft, 5);
+  Serial << _JUSTIFY(gSensorRight, 5);
+  Serial << _JUSTIFY(gSensorCTE, 5);
+  Serial << _JUSTIFY(gSensorStartMarker, 5);
+  Serial << _JUSTIFY(gSensorTurnMarker, 5);
+  Serial << endl;
+}
+
+
+/*********************************** Wall tracking **************************/
+void wallSensorUpdate() {
+  // a single floating point multiply is MUCH less expensive than using
+  // a 32 bit multiply followed by a divide!
+  gSensorLeftWall = sensor[2] * LEFT_ADJUST;
+  gSensorFrontWall = sensor[1] * FRONT_ADJUST;
+  gSensorRightWall = sensor[0] * RIGHT_ADJUST;
+
+  gLeftWall = gSensorLeftWall > LEFT_WALL_THRESHOLD;
+  gFrontWall = gSensorFrontWall > FRONT_WALL_THRESHOLD;
+  gRightWall = gSensorRightWall > RIGHT_WALL_THRESHOLD;
+  digitalWriteFast(LED_LEFT, gLeftWall);
+  digitalWriteFast(LED_RIGHT, gRightWall);
+  digitalWriteFast(LED_BUILTIN, gFrontWall);
+  // calculate the alignment errors - too far right is negative
+  int error = 0;
+  if ((gSensorLeftWall + gSensorRightWall) > 90) {
+    if (gSensorLeftWall > gSensorRightWall) {
+      error = (gSensorLeftWall - LEFT_NOMINAL);
+    } else {
+      error = (RIGHT_NOMINAL - gSensorRightWall);
+    }
+  }
+  gSensorCTE = error;
+  // filtering adds about 50us - how badly is it needed?
+  // const float errorAlpha = 0.95;
+  // gSensorCTE = errorAlpha * gSensorCTE + (1 - errorAlpha) * error;
+  error = FRONT_NOMINAL - gSensorFrontWall;
+  gSensorFrontError = error;  // Too close is negative
+  // gSensorFrontError = errorAlpha * gSensorFrontError + (1 - errorAlpha) * error;  // Too close is negative
+}
+
+void wallSensorShow() {
+  Serial << _JUSTIFY(gSensorLeftWall, 5);
+  Serial << _JUSTIFY(gSensorFrontWall, 5);
+  Serial << _JUSTIFY(gSensorRightWall, 5);
+  Serial << _JUSTIFY(gSensorCTE, 5);
+  Serial << _JUSTIFY(gSensorFrontError, 5);
+  Serial << endl;
 }

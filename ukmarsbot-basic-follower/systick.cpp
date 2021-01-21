@@ -21,6 +21,9 @@ void setupSystick(int frequency) {
 ISR(TIMER2_COMPA_vect) {
   ticks++;
   sensorsUpdate();
+  // TODO: this should be an either-or depending on the current robot contest type
+  lineSensorUpdate();
+  wallSensorUpdate();
   encoderUpdate();
   fwd.update();
   rot.update();

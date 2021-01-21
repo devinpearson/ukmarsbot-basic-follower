@@ -59,4 +59,32 @@ const int EEPROM_ADDR_SETTINGS = 0x0000;
 #define DEFAULTS_RIGHT_FF_STATIC_FWD 0.317
 #define DEFAULTS_RIGHT_FF_STATIC_REV 0.317
 
+// Line sensor thresholds
+const float DEFAULTS_LINE_WIDTH = 19.0;               // ADJUST THIS so that CTE is roughly equal to the error in mm
+const float DEFAULTS_LINE_DETECT_THRESHOLD = 900.0;   // minimum value to register the line - ADJUST TO SUIT
+const float DEFAULTS_LEFT_MARKER_THRESHOLD = 180.0;   // minimum value to register the turn marker
+const float DEFAULTS_RIGHT_MARKER_THRESHOLD = 180.0;  // minimum value to register the start marker
+
+// wall sensor thresholds and constants
+// the default values for the front sensor when the robot is backed up to a wall
+const int FRONT_REFERENCE = 100.0;
+// the default values for the side sensors when the robot is centred in a cell
+// and there is no wall ahead
+const float LEFT_REFERENCE = 82.0;
+const float RIGHT_REFERENCE = 101.0;
+
+// Sensor brightness adjustment factor. The compiler calculates these so it saves processor time
+const float FRONT_ADJUST = 100.0 / FRONT_REFERENCE;
+const float LEFT_ADJUST = 100.0 / LEFT_REFERENCE;
+const float RIGHT_ADJUST = 100.0 / RIGHT_REFERENCE;
+// This is the value seen by the front sensor when the mouse is centred, facing a wall
+const float FRONT_NOMINAL = 250.0;
+const float LEFT_NOMINAL = 100.0;
+const float RIGHT_NOMINAL = 100.0;
+
+// the values above which, a wall is seen
+const int FRONT_WALL_THRESHOLD = 20;  // minimum value to register a wall
+const int LEFT_WALL_THRESHOLD = 50;   // minimum value to register a wall
+const int RIGHT_WALL_THRESHOLD = 50;  // minimum value to register a wall
+
 #endif

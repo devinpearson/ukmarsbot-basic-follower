@@ -4,8 +4,6 @@
 #include <arduino.h>
 #include "cli.h"
 void cmdFilter(float f);
-void cmdShowLineSensors(Args& args);
-void cmdShowWallSensors(Args& args);
 void cmdShowFront(Args& args);
 void cmdShowLeft(Args& args);
 void cmdShowRight(Args& args);
@@ -25,6 +23,7 @@ void cmdTestTurn(Args& args);
 void cmdTestSpin(Args& args);
 void cmdLineCalibrate(Args& args);
 void cmdWallCalibrate(Args& args);
+
 
 template <class T>
 void cmdSetGet(T& var, T min, T max, Args& args) {

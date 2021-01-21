@@ -7,8 +7,6 @@ extern volatile int functionValue;
 extern volatile float rawError;
 extern volatile float gSteeringControl;
 extern bool gSteeringEnabled;
-extern bool gLineLock;
-extern int gLineErrorDirection;
 void steeringReset();
 float steeringUpdate();
 float adjustExponential(float value, float factor);
@@ -21,14 +19,43 @@ inline void waitForButtonClick() {
   while (functionButtonPressed()) {
   };  // do nothing
 }
+
+/*** wall sensor variables ***/
+extern volatile int gSensorFrontWall;
+extern volatile int gSensorLeftWall;
+extern volatile int gSensorRightWalt;
+// true if a wall is present
+extern volatile bool gLeftWall;
+extern volatile bool gFrontWall;
+extern volatile bool gRightWall;
+extern volatile float gSensorFrontError;  // zero when robot in cell centre
+
+/*** line sensor variables ***/
+extern volatile float gSensorStartMarker;
+extern volatile float gSensorTurnMarker;
+extern volatile float gSensorRight;
+extern volatile float gSensorLeft;
+
+/*** steering variables ***/
+extern volatile float gSensorCTE;
+
 bool turnMarker();
 bool startMarker();
 
 void sensorsEnable();
 void sensorsDisable();
 int getSensor(uint8_t i);
+void sensorsShow();
+
 void sensorsSetup();
 void sensorsUpdate();
+
+void lineSensorUpdate();
+void lineSensorShow();
+
+void wallSensorUpdate();
+void wallSensorShow();
+
 template <typename T>
 int sgn(T val) {
   return (T(0) < val) - (val < T(0));
