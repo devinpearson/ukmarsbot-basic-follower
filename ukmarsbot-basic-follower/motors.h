@@ -12,4 +12,5 @@ void setRightMotorVolts(float volts);
 void pwmSetup(int frequency);
 void motorSetup();
 void motorBeep(int freq);
+void motorsStop();
 #endif

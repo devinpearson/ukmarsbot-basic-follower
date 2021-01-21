@@ -87,6 +87,10 @@ void motorBeep(int freq) {
     setRightMotorVolts(-MAX_MOTOR_VOLTS);
     delayMicroseconds(delay / 2);
   }
+  motorsStop();
+}
+
+void motorsStop(){
   setLeftMotorVolts(0);
   setRightMotorVolts(0);
 }

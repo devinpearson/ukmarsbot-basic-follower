@@ -51,8 +51,7 @@ void cmdLineCalibrate(Args& args) {
     }
   }
   motionEnabled = false;
-  setLeftMotorVolts(0);
-  setRightMotorVolts(0);
+  motorsStop();
   sensorsDisable();
 }
 
@@ -73,12 +72,9 @@ void cmdWallCalibrate(Args& args) {
     }
   }
   motionEnabled = false;
-  setLeftMotorVolts(0);
-  setRightMotorVolts(0);
+  motorsStop();
   sensorsDisable();
 }
-
-
 
 void cmdShowFront(Args& args) {
 }
@@ -155,8 +151,7 @@ void cmdTestFwd(Args& args) {
     Serial.print(pos, 4);
     Serial.println();
   }
-  setLeftMotorVolts(0);
-  setRightMotorVolts(0);
+  motorsStop();
 }
 
 enum { IDLE, STARTING, RUNNING, STOPPING, CROSSING };
@@ -253,8 +248,7 @@ float lineTrial() {
   Serial.print(errorSum);
   Serial.println('\n');
   sensorsDisable();
-  setLeftMotorVolts(0);
-  setRightMotorVolts(0);
+  motorsStop();
   delay(250);
   motionEnabled = false;
   gSteeringEnabled = false;
@@ -352,8 +346,7 @@ float cmdFollowLine(Args& args) {
   Serial.print(errorSum);
   Serial.println(F("\"\n"));
   sensorsDisable();
-  setLeftMotorVolts(0);
-  setRightMotorVolts(0);
+  motorsStop();
   motionEnabled = false;
   delay(250);
   gSteeringEnabled = false;
@@ -401,8 +394,7 @@ void cmdTestRot(Args& args) {
     Serial.print(pos, 4);
     Serial.println();
   }
-  setLeftMotorVolts(0);
-  setRightMotorVolts(0);
+  motorsStop();
 }
 
 void sendProfileHeader() {
@@ -470,8 +462,7 @@ void cmdTestMove(Args& args) {
   }
 
   motionEnabled = false;
-  setLeftMotorVolts(0);
-  setRightMotorVolts(0);
+  motorsStop();
   Serial.println();
 }
 
@@ -497,8 +488,7 @@ void cmdTestMotors(Args& args) {
       break;
     }
   }
-  setLeftMotorVolts(0);
-  setRightMotorVolts(0);
+  motorsStop();
   Serial.println();
 }
 
@@ -527,8 +517,7 @@ void cmdTestSpin(Args& args) {
     sendProfileData(millis() - t, rot);
   }
   motionEnabled = false;
-  setLeftMotorVolts(0);
-  setRightMotorVolts(0);
+  motorsStop();
   Serial.println();
 }
 
@@ -568,7 +557,6 @@ void cmdTestTurn(Args& args) {
   while (!fwd.isFinished()) {
   }
   motionEnabled = false;
-  setLeftMotorVolts(0);
-  setRightMotorVolts(0);
+  motorsStop();
   Serial.println();
 }
