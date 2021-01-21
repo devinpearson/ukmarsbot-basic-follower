@@ -609,9 +609,13 @@ void turn(const int direction){
  * spin turn the robot left or right by 90 degrees on the spot
  */
 void spin(const float angle) {
+  bool savedSteering =  gSteeringEnabled;
+  gSteeringEnabled = false;
   rot.startMove(angle, 360.0, 0.0, 1200.0);
   while (rot.mState != Profile::FINISHED) {
   }
+  steeringReset();
+  gSteeringEnabled = savedSteering;
 };
 
 void goHalfCell(const bool stopAtEnd) {
