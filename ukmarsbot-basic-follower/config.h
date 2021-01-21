@@ -21,6 +21,11 @@
 // #define UKMARSBOT_ARIADNE
 #define UKMARSBOT_DOROTHY
 
+// use an enum here
+#define MODE_NONE 0
+#define MODE_MAZE 1
+#define MODE_LINE 2
+
 const uint32_t BAUDRATE = 115200;
 
 // sometimes the controller needs the interval, sometimes the frequency

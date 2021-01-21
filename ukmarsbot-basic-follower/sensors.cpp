@@ -13,7 +13,7 @@ volatile float gSteeringControl;
 bool gSteeringEnabled;
 
 static volatile bool sensorsEnabled = false;
-static float oldError;
+static float oldError = 0;
 
 const float errMax = 400;
 
@@ -69,43 +69,44 @@ float adjustExponential(float value, float factor) {
   return value;
 }
 
-volatile float rawError = 0;
+
 float steeringUpdate() {
-  gSteeringControl = 0;
-  float sum = getSensor(2) + getSensor(1);
-  float diff = getSensor(2) - getSensor(1);
   float err = 0;
-  if (!gSteeringEnabled) {
-    return 0;
-  }
-  if (sum > DEFAULTS_LINE_DETECT_THRESHOLD) {
-    digitalWriteFast(LED_BUILTIN, 1);
-    err = diff / sum;
-    if (err > errMax) {
-      err = errMax;
-    }
-    if (err < -errMax) {
-      err = -errMax;
-    }
-    gLineErrorDirection = sgn(err);
-  } else {
-    // The line is lost but set a large error in the direction is was last seen
-    digitalWriteFast(LED_BUILTIN, 0);
-    err = errMax * gLineErrorDirection;
+  float pTerm = 0;
+  float dTerm = 0;
+  // always calculate the errors even if not used so that debugging is possible
+  switch (settings.mode) {
+    case MODE_LINE: {
+      lineSensorUpdate();
+      err = gSensorCTE;
+      pTerm = settings.lineKP * err;
+      dTerm = settings.lineKD * (err - oldError);
+    } break;
+    case MODE_MAZE: {
+      wallSensorUpdate();
+      err = gSensorCTE; // fetch it once only in case it changes
+      pTerm = settings.wallKP * err;
+      dTerm = settings.wallKD * (err - oldError);
+    } break;
+    case MODE_NONE:
+    default: {
+      err = 0;     
+    } break;
   }
 
-  float pTerm = settings.lineKP * err;
-  float dTerm = settings.lineKD * (err - oldError);
+  if (!gSteeringEnabled) {
+    gSteeringControl = 0;
+    return 0;
+  }
+
   oldError = err;
-  rawError = err;
   float speedAdjust = constrain(fwd.mCurrentSpeed, 500, fwd.mCurrentSpeed);
   gSteeringControl = speedAdjust * (pTerm + dTerm);
-  gSteeringControl = adjustExponential(gSteeringControl, 0.5);
+  // gSteeringControl = adjustExponential(gSteeringControl, 0.5);
   return gSteeringControl;
 }
 
 void steeringReset() {
-  rawError = 0;
   oldError = 0;
   gSteeringControl = 0;
 }
@@ -170,6 +171,9 @@ void sensorsShow() {
 
 /*********************************** Line tracking **************************/
 void lineSensorUpdate() {
+  if (settings.mode != MODE_LINE) {
+    return;
+  }
   gSensorStartMarker = sensor[0];
   gSensorRight = sensor[1];
   gSensorLeft = sensor[2];
@@ -210,15 +214,16 @@ void lineSensorShow() {
   Serial << endl;
 }
 
-
 /*********************************** Wall tracking **************************/
 void wallSensorUpdate() {
+  if (settings.mode != MODE_MAZE) {
+    return;
+  }
   // a single floating point multiply is MUCH less expensive than using
   // a 32 bit multiply followed by a divide!
   gSensorLeftWall = sensor[2] * LEFT_ADJUST;
   gSensorFrontWall = sensor[1] * FRONT_ADJUST;
   gSensorRightWall = sensor[0] * RIGHT_ADJUST;
-
   gLeftWall = gSensorLeftWall > LEFT_WALL_THRESHOLD;
   gFrontWall = gSensorFrontWall > FRONT_WALL_THRESHOLD;
   gRightWall = gSensorRightWall > RIGHT_WALL_THRESHOLD;
@@ -229,18 +234,13 @@ void wallSensorUpdate() {
   int error = 0;
   if ((gSensorLeftWall + gSensorRightWall) > 90) {
     if (gSensorLeftWall > gSensorRightWall) {
-      error = (gSensorLeftWall - LEFT_NOMINAL);
+      error = (LEFT_NOMINAL-gSensorLeftWall);
     } else {
-      error = (RIGHT_NOMINAL - gSensorRightWall);
+      error = (gSensorRightWall - RIGHT_NOMINAL);
     }
   }
-  gSensorCTE = error;
-  // filtering adds about 50us - how badly is it needed?
-  // const float errorAlpha = 0.95;
-  // gSensorCTE = errorAlpha * gSensorCTE + (1 - errorAlpha) * error;
-  error = FRONT_NOMINAL - gSensorFrontWall;
-  gSensorFrontError = error;  // Too close is negative
-  // gSensorFrontError = errorAlpha * gSensorFrontError + (1 - errorAlpha) * error;  // Too close is negative
+  gSensorCTE = DEFAULTS_WALL_CTE_GAIN * error;
+  gSensorFrontError =  FRONT_NOMINAL - gSensorFrontWall;  // Too close is negative
 }
 
 void wallSensorShow() {

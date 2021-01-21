@@ -1,6 +1,7 @@
 #include "commands.h"
 #include <arduino.h>
 #include "cli.h"
+#include "digitalWriteFast.h"
 #include "encoders.h"
 #include "motion.h"
 #include "motors.h"
@@ -8,7 +9,6 @@
 #include "settings.h"
 #include "streaming.h"
 #include "systick.h"
-#include "digitalWriteFast.h"
 #include "twiddle.h"
 
 void cmdFilter(float f) {
@@ -32,7 +32,6 @@ void cmdFilter(float f) {
     Serial.println(mag, 4);
   }
 }
-
 
 void cmdLineCalibrate(Args& args) {
   sensorsEnable();
@@ -177,8 +176,6 @@ void sendLineTelemetry(uint32_t t, float error) {
   Serial.print(gSteeringControl);
   Serial.print(' ');
   Serial.print(error);
-  Serial.print(' ');
-  Serial.print(rawError);
   Serial.println();
 }
 
@@ -398,7 +395,7 @@ void cmdTestRot(Args& args) {
 }
 
 void sendProfileHeader() {
-  Serial.println(F("time setPos setSpeed ouput encPos encSpeed encAngle encOmega"));
+  Serial.println(F("time setPos setSpeed ouput encPos encSpeed encAngle encOmega Left Right Control"));
 }
 
 void sendProfileData(int timeStamp, Profile& prof) {
@@ -427,9 +424,11 @@ void sendProfileData(int timeStamp, Profile& prof) {
   Serial.print(' ');
   Serial.print(actOmega);
   Serial.print(' ');
-  Serial.print(leftFF);
+  Serial.print(gSensorLeftWall);
   Serial.print(' ');
-  Serial.print(rightFF);
+  Serial.print(gSensorRightWall);
+  Serial.print(' ');
+  Serial.print(gSteeringControl);
   Serial.println();
 }
 
@@ -448,10 +447,12 @@ void cmdTestMove(Args& args) {
   if (accel == 0) {
     accel = 2000;
   }
-  waitForButtonClick();
+  // waitForButtonClick();
   delay(500);
   sendProfileHeader();
   encoderReset();
+  sensorsEnable();
+  gSteeringEnabled = true;
   fwd.reset();
   rot.reset();
   motionEnabled = true;
@@ -463,6 +464,7 @@ void cmdTestMove(Args& args) {
 
   motionEnabled = false;
   motorsStop();
+  sensorsDisable();
   Serial.println();
 }
 
@@ -560,3 +562,65 @@ void cmdTestTurn(Args& args) {
   motorsStop();
   Serial.println();
 }
+
+void cmdSearch() {
+  encoderReset();
+  fwd.reset();
+  rot.reset();
+  motionEnabled = true;
+  sensorsEnable();
+  gSteeringControl = 0;
+  gSteeringEnabled = true;
+  bool finished = false;
+  Serial.println(F("START"));
+  while (not(finished)) {
+    goHalfCell(false);
+    // sensors can be checked here.
+    if (not(gLeftWall)) {
+      Serial.println(F("LEFT"));
+      goHalfCell(true);
+      spin(90);
+    } else if (not(gFrontWall)) {
+      Serial.println(F("FWD"));
+      goHalfCell(false);
+    } else if (not(gRightWall)) {
+      Serial.println(F("RIGHT"));
+      goHalfCell(true);
+      spin(-90);
+    } else {
+      Serial.println(F("???"));
+      goHalfCell(true);
+      spin(180);
+    }
+  }
+  sensorsDisable();
+  motionEnabled = false;
+  motorsStop();
+}
+
+/***
+ * smooth turn the robot left or right by 90 degrees
+ */
+void turn(const int direction){
+
+};
+
+/***
+ * spin turn the robot left or right by 90 degrees on the spot
+ */
+void spin(const float angle) {
+  rot.startMove(angle, 360.0, 0.0, 1200.0);
+  while (rot.mState != Profile::FINISHED) {
+  }
+};
+
+void goHalfCell(const bool stopAtEnd) {
+  if (stopAtEnd) {
+    fwd.startMove(90.0, SEARCH_SPEED, 0.0, 1500.0);
+  } else {
+    fwd.startMove(90.0, SEARCH_SPEED, SEARCH_SPEED, 1500.0);
+  }
+  while (fwd.mState != Profile::FINISHED) {
+    delay(1);
+  }
+};

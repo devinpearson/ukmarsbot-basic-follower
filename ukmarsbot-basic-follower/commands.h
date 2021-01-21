@@ -24,6 +24,12 @@ void cmdTestSpin(Args& args);
 void cmdLineCalibrate(Args& args);
 void cmdWallCalibrate(Args& args);
 
+void cmdSearch();
+void spin(const float angle);
+
+void turn(const int direction);
+void goHalfCell(const bool stopAtEnd);
+
 
 template <class T>
 void cmdSetGet(T& var, T min, T max, Args& args) {

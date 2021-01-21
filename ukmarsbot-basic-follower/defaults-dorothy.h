@@ -1,11 +1,13 @@
 #ifndef DOROTHY
 #define DOROTHY
 
+#define SETTINGS_VERSION 0x07
+
+#define DEFAULTS_ROBOT_MODE MODE_MAZE
 const int SENSOR_COUNT = 4;
 const float MAX_MOTOR_VOLTS = 6.0;
 
 const int EEPROM_ADDR_SETTINGS = 0x0000;
-#define SETTINGS_VERSION 0x03
 // encoder polarity is either 1 or -1 and is used to account for reversal of the encoder phases
 #define ENCODER_LEFT_POLARITY (-1)
 #define ENCODER_RIGHT_POLARITY (1)
@@ -18,7 +20,7 @@ const int EEPROM_ADDR_SETTINGS = 0x0000;
 #define WHEEL_DIAMETER 32.0
 #define ENCODER_PULSES 12.0
 #define GEAR_RATIO 20.0
-#define MOUSE_RADIUS 37.0
+#define MOUSE_RADIUS 38.0
 
 // forward motion uses the sum of the two encoders for odometry hence the 2.0 constant
 #define DEFAULTS_MM_PER_COUNT (PI * WHEEL_DIAMETER / (2.0 * ENCODER_PULSES * GEAR_RATIO))
@@ -40,6 +42,7 @@ const int EEPROM_ADDR_SETTINGS = 0x0000;
 // controller constants for the line follower configuration
 #define DEFAULTS_WALL_KP 1.5
 #define DEFAULTS_WALL_KD 6.0
+#define DEFAULTS_WALL_CTE_GAIN 0.00075
 
 // time delay for sensors to respond to emitters
 #define DEFAULTS_EMITTER_ON_TIME 50
@@ -86,5 +89,9 @@ const float RIGHT_NOMINAL = 100.0;
 const int FRONT_WALL_THRESHOLD = 20;  // minimum value to register a wall
 const int LEFT_WALL_THRESHOLD = 50;   // minimum value to register a wall
 const int RIGHT_WALL_THRESHOLD = 50;  // minimum value to register a wall
+
+// search and run speeds
+const int SEARCH_SPEED = 540.0;
+const int SEARCH_ACCEL = 1800.0;
 
 #endif

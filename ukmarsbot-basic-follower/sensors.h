@@ -4,7 +4,7 @@
 #include <arduino.h>
 extern volatile float batteryVolts;
 extern volatile int functionValue;
-extern volatile float rawError;
+
 extern volatile float gSteeringControl;
 extern bool gSteeringEnabled;
 void steeringReset();
@@ -23,7 +23,7 @@ inline void waitForButtonClick() {
 /*** wall sensor variables ***/
 extern volatile int gSensorFrontWall;
 extern volatile int gSensorLeftWall;
-extern volatile int gSensorRightWalt;
+extern volatile int gSensorRightWall;
 // true if a wall is present
 extern volatile bool gLeftWall;
 extern volatile bool gFrontWall;

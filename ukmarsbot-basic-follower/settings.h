@@ -17,6 +17,8 @@ struct SettingsData {
   float rotKD;
   float lineKP;
   float lineKD;
+  float wallKP;
+  float wallKD;
   float leftFFSpeedFwd;
   float leftFFSpeedRev;
   float leftFFAccFwd;

@@ -57,6 +57,9 @@ void setup() {
   Serial.println(settings.fwdKD, 5);
   Serial.println(settings.mmPerCount, 5);
   Serial.println(settings.degPerCount, 5);
+  Serial.println(settings.mode, 5);
+  Serial.println(settings.wallKP, 5);
+  Serial.println(settings.wallKD, 5);
 
   setupSystick(1000);
   pinMode(USER_IO, OUTPUT);
@@ -156,6 +159,8 @@ void execute() {
       delay(50);
     }
     sensorsDisable();
+  } else if (strcmp_P(args.argv[0], PSTR("SEARCH")) == 0) {
+    cmdSearch();
   }
 }
 
