@@ -1,7 +1,7 @@
 #ifndef DOROTHY
 #define DOROTHY
 
-#define SETTINGS_VERSION 0x07
+#define SETTINGS_VERSION 0x0a
 
 #define DEFAULTS_ROBOT_MODE MODE_MAZE
 const int SENSOR_COUNT = 4;
@@ -20,7 +20,7 @@ const int EEPROM_ADDR_SETTINGS = 0x0000;
 #define WHEEL_DIAMETER 32.0
 #define ENCODER_PULSES 12.0
 #define GEAR_RATIO 20.0
-#define MOUSE_RADIUS 38.0
+#define MOUSE_RADIUS 37.0
 
 // forward motion uses the sum of the two encoders for odometry hence the 2.0 constant
 #define DEFAULTS_MM_PER_COUNT (PI * WHEEL_DIAMETER / (2.0 * ENCODER_PULSES * GEAR_RATIO))
@@ -31,8 +31,8 @@ const int EEPROM_ADDR_SETTINGS = 0x0000;
 #define DEFAULTS_FWD_KP 1.0
 #define DEFAULTS_FWD_KD 5.0
 
-#define DEFAULTS_ROT_KP 0.35
-#define DEFAULTS_ROT_KD 4.0
+#define DEFAULTS_ROT_KP 0.7
+#define DEFAULTS_ROT_KD 2.0
 
 // controller constants for the line follower configuration
 #define DEFAULTS_LINE_KP 1.5
@@ -42,7 +42,7 @@ const int EEPROM_ADDR_SETTINGS = 0x0000;
 // controller constants for the line follower configuration
 #define DEFAULTS_WALL_KP 1.5
 #define DEFAULTS_WALL_KD 6.0
-#define DEFAULTS_WALL_CTE_GAIN 0.00075
+#define DEFAULTS_WALL_CTE_GAIN 0.0005
 
 // time delay for sensors to respond to emitters
 #define DEFAULTS_EMITTER_ON_TIME 50
@@ -87,11 +87,14 @@ const float RIGHT_NOMINAL = 100.0;
 
 // the values above which, a wall is seen
 const int FRONT_WALL_THRESHOLD = 20;  // minimum value to register a wall
-const int LEFT_WALL_THRESHOLD = 50;   // minimum value to register a wall
-const int RIGHT_WALL_THRESHOLD = 50;  // minimum value to register a wall
+const int LEFT_WALL_THRESHOLD = 40;   // minimum value to register a wall
+const int RIGHT_WALL_THRESHOLD = 40;  // minimum value to register a wall
 
 // search and run speeds
-const int SEARCH_SPEED = 540.0;
-const int SEARCH_ACCEL = 1800.0;
+const float TURN_SPEED = 300;
+const float SEARCH_SPEED = 400;
+const float SEARCH_ACCEL = 2000;
+const float ACCEL_DIST = (SEARCH_SPEED * SEARCH_SPEED) / (2 * SEARCH_ACCEL);  // 63mm
+const float BRAKE_DIST = (SEARCH_SPEED * SEARCH_SPEED - TURN_SPEED*TURN_SPEED) / (2 * SEARCH_ACCEL);  // 63mm
 
 #endif
