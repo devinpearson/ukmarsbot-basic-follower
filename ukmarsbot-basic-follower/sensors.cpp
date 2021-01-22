@@ -224,9 +224,17 @@ void wallSensorUpdate() {
   gSensorLeftWall = sensor[2] * LEFT_ADJUST;
   gSensorFrontWall = sensor[1] * FRONT_ADJUST;
   gSensorRightWall = sensor[0] * RIGHT_ADJUST;
-  gLeftWall = gSensorLeftWall > LEFT_WALL_THRESHOLD;
+  if(gLeftWall){
+    gLeftWall  = gSensorLeftWall > LEFT_WALL_THRESHOLD;
+  } else {
+    gLeftWall  = gSensorLeftWall > (LEFT_WALL_THRESHOLD + 20);
+  }
+  if(gRightWall){
+    gRightWall  = gSensorRightWall > RIGHT_WALL_THRESHOLD;
+  } else {
+    gRightWall  = gSensorRightWall > (RIGHT_WALL_THRESHOLD + 20);
+  }
   gFrontWall = gSensorFrontWall > FRONT_WALL_THRESHOLD;
-  gRightWall = gSensorRightWall > RIGHT_WALL_THRESHOLD;
   digitalWriteFast(LED_LEFT, gLeftWall);
   digitalWriteFast(LED_RIGHT, gRightWall);
   digitalWriteFast(LED_BUILTIN, gFrontWall);
