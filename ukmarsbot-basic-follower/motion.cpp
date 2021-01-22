@@ -113,8 +113,8 @@ void Profile::startMove(float distance, float topSpeed, float endSpeed, float ac
   mDirection = sign;
   mPosition = 0;
   mEndPosition = distance;
-  mTargetSpeed = fabsf(topSpeed);
-  mEndSpeed = fabsf(endSpeed);
+  mTargetSpeed = sign * fabsf(topSpeed);
+  mEndSpeed = sign * fabsf(endSpeed);
   mAcceleration = fabsf(acceleration);
   mState = ACCELERATE;
   interrupts();
@@ -154,18 +154,14 @@ void Profile::update() {
   }
   ///////
   if (mState == ACCELERATE) {
-    float deceleration = getBraking(mEndPosition - mPosition, mCurrentSpeed, mEndSpeed);
+    float deceleration = getBraking(fabsf(mEndPosition) - fabsf(mPosition), mCurrentSpeed, mEndSpeed);
     if (deceleration >= mAcceleration) {
       mState = BRAKE;
       mTargetSpeed = mEndSpeed;
-      if (fabsf(mEndSpeed) < mAcceleration) {
+      if (fabsf(mEndSpeed) < mAcceleration * LOOP_INTERVAL) {
         mTargetSpeed = mDirection * mAcceleration * LOOP_INTERVAL;
       }
     }
-  }
-  if (fabsf(mPosition) >= (fabsf(mEndPosition) - 0.05)) {
-    mState = FINISHED;
-    mCurrentSpeed = mEndSpeed;
   }
   /////////
   mCurrentSpeed += mAdjustment;
@@ -182,6 +178,18 @@ void Profile::update() {
   }
   ///////////
   mPosition += (mCurrentSpeed)*LOOP_INTERVAL;
+  ///////////
+  if (mState == BRAKE) {
+    if (fabsf(mCurrentSpeed) - fabsf(mTargetSpeed) < 0.1) {
+      mState = FINISHED;
+    }
+    if ((fabsf(mPosition)) >= fabsf(mEndPosition)) {
+      mState = FINISHED;
+    }
+  }
+  if (mState == FINISHED) {
+    mCurrentSpeed = mEndSpeed;
+  }
 }
 
 void Profile::setMode(int mode) {
