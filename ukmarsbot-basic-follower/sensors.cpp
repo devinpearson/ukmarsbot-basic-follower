@@ -13,6 +13,7 @@ volatile float gSteeringControl;
 bool gSteeringEnabled;
 
 static volatile bool sensorsEnabled = false;
+static float delta;  // used to filter the D term in the steering controller
 static float oldError = 0;
 
 const float errMax = 400;
@@ -69,7 +70,6 @@ float adjustExponential(float value, float factor) {
   return value;
 }
 
-
 float steeringUpdate() {
   float err = 0;
   float pTerm = 0;
@@ -80,17 +80,19 @@ float steeringUpdate() {
       lineSensorUpdate();
       err = gSensorCTE;
       pTerm = settings.lineKP * err;
+
       dTerm = settings.lineKD * (err - oldError);
     } break;
     case MODE_MAZE: {
       wallSensorUpdate();
-      err = gSensorCTE; // fetch it once only in case it changes
+      err = gSensorCTE;  // fetch it once only in case it changes
       pTerm = settings.wallKP * err;
-      dTerm = settings.wallKD * (err - oldError);
+      delta = 0.1 * (err - oldError) + 0.9 * delta;
+      dTerm = settings.wallKD * delta;
     } break;
     case MODE_NONE:
     default: {
-      err = 0;     
+      err = 0;
     } break;
   }
 
@@ -102,12 +104,14 @@ float steeringUpdate() {
   oldError = err;
   float speedAdjust = constrain(fwd.mCurrentSpeed, 500, fwd.mCurrentSpeed);
   gSteeringControl = speedAdjust * (pTerm + dTerm);
+  gSteeringControl = constrain(gSteeringControl, -5, 5);
   // gSteeringControl = adjustExponential(gSteeringControl, 0.5);
   return gSteeringControl;
 }
 
 void steeringReset() {
   oldError = 0;
+  delta = 0;
   gSteeringControl = 0;
 }
 
