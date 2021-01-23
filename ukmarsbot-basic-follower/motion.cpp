@@ -165,6 +165,7 @@ void Profile::update() {
   }
   /////////
   mCurrentSpeed += mAdjustment;
+  /////////
   if (mCurrentSpeed < mTargetSpeed) {
     mCurrentSpeed += mAcceleration * LOOP_INTERVAL;
     if (mCurrentSpeed > mTargetSpeed) {
@@ -182,13 +183,12 @@ void Profile::update() {
   if (mState == BRAKE) {
     if (fabsf(mCurrentSpeed) - fabsf(mTargetSpeed) < 0.1) {
       mState = FINISHED;
+      mCurrentSpeed = mEndSpeed;
     }
     if ((fabsf(mPosition)) >= fabsf(mEndPosition)) {
       mState = FINISHED;
+      mCurrentSpeed = mEndSpeed;
     }
-  }
-  if (mState == FINISHED) {
-    mCurrentSpeed = mEndSpeed;
   }
 }
 
