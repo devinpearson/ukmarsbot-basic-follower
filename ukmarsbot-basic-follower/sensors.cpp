@@ -251,6 +251,9 @@ void wallSensorUpdate() {
       error = (gSensorRightWall - RIGHT_NOMINAL);
     }
   }
+  if (gSensorFrontWall > 100) {
+    error = 0;
+  }
   gSensorCTE = DEFAULTS_WALL_CTE_GAIN * error;
   gSensorFrontError =  FRONT_NOMINAL - gSensorFrontWall;  // Too close is negative
 }
