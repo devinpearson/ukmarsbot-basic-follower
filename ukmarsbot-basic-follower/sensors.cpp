@@ -228,15 +228,15 @@ void wallSensorUpdate() {
   gSensorLeftWall = sensor[2] * LEFT_ADJUST;
   gSensorFrontWall = sensor[1] * FRONT_ADJUST;
   gSensorRightWall = sensor[0] * RIGHT_ADJUST;
-  if(gLeftWall){
-    gLeftWall  = gSensorLeftWall > LEFT_WALL_THRESHOLD;
+  if (gLeftWall) {
+    gLeftWall = gSensorLeftWall > LEFT_WALL_THRESHOLD;
   } else {
-    gLeftWall  = gSensorLeftWall > (LEFT_WALL_THRESHOLD + 20);
+    gLeftWall = gSensorLeftWall > (LEFT_WALL_THRESHOLD + 20);
   }
-  if(gRightWall){
-    gRightWall  = gSensorRightWall > RIGHT_WALL_THRESHOLD;
+  if (gRightWall) {
+    gRightWall = gSensorRightWall > RIGHT_WALL_THRESHOLD;
   } else {
-    gRightWall  = gSensorRightWall > (RIGHT_WALL_THRESHOLD + 20);
+    gRightWall = gSensorRightWall > (RIGHT_WALL_THRESHOLD + 20);
   }
   gFrontWall = gSensorFrontWall > FRONT_WALL_THRESHOLD;
   digitalWriteFast(LED_LEFT, gLeftWall);
@@ -246,7 +246,7 @@ void wallSensorUpdate() {
   int error = 0;
   if ((gSensorLeftWall + gSensorRightWall) > 90) {
     if (gSensorLeftWall > gSensorRightWall) {
-      error = (LEFT_NOMINAL-gSensorLeftWall);
+      error = (LEFT_NOMINAL - gSensorLeftWall);
     } else {
       error = (gSensorRightWall - RIGHT_NOMINAL);
     }
@@ -255,7 +255,7 @@ void wallSensorUpdate() {
     error = 0;
   }
   gSensorCTE = DEFAULTS_WALL_CTE_GAIN * error;
-  gSensorFrontError =  FRONT_NOMINAL - gSensorFrontWall;  // Too close is negative
+  gSensorFrontError = FRONT_NOMINAL - gSensorFrontWall;  // Too close is negative
 }
 
 void wallSensorShow() {
