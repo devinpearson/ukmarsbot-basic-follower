@@ -23,8 +23,8 @@ ISR(TIMER2_COMPA_vect) {
   sensorsUpdate();
   encoderUpdate();
   steeringUpdate();
+  rot.adjust(gSteeringControl);
   fwd.update();
   rot.update();
-  rot.adjust(gSteeringControl);
   motionUpdate();
 }
