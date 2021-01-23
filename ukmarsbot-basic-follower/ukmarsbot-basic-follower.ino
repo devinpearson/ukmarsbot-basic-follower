@@ -97,11 +97,15 @@ void execute() {
   } else if (strcmp_P(args.argv[0], PSTR("ROTKP")) == 0) {
     cmdSetGet(rot.mKP, 0.0f, 10.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("ROTKD")) == 0) {
-    cmdSetGet(rot.mKD, 0.0f, 10.0f, args);
+    cmdSetGet(rot.mKD, 0.0f, 20.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("LINEKP")) == 0) {
     cmdSetGet(settings.lineKP, 0.0f, 50.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("LINEKD")) == 0) {
     cmdSetGet(settings.lineKD, 0.0f, 50.0f, args);
+  } else if (strcmp_P(args.argv[0], PSTR("WALLKP")) == 0) {
+    cmdSetGet(settings.wallKP, 0.0f, 10.0f, args);
+  } else if (strcmp_P(args.argv[0], PSTR("WALLKD")) == 0) {
+    cmdSetGet(settings.wallKD, 0.0f, 10.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("BATT")) == 0) {
     Serial.print(batteryVolts, 2);
     Serial.println(F(" Volts"));
@@ -160,7 +164,7 @@ void execute() {
     }
     sensorsDisable();
   } else if (strcmp_P(args.argv[0], PSTR("SEARCH")) == 0) {
-    cmdSearch();
+    cmdFollowWall();
   }
 }
 

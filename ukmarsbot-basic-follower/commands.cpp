@@ -53,27 +53,61 @@ void cmdLineCalibrate(Args& args) {
   motorsStop();
   sensorsDisable();
 }
+//////////////////////////////////////////////////////////////////////
+void sendWallCalHeader() {
+  Serial.println();
+  Serial.println(F("time position Left Right Front Ctrl Error "));
+}
+void sendWallCalTelemetry(uint32_t t, float error) {
+  int posNow = int(fwd.mPosition);
+  // send it at leisure
+  Serial.print(t);
+  Serial.print(' ');
+  Serial.print(posNow);
+  Serial.print(' ');
+  Serial.print(gSensorLeftWall);
+  Serial.print(' ');
+  Serial.print(gSensorRightWall);
+  Serial.print(' ');
+  Serial.print(gSensorFrontWall);
+  Serial.print(' ');
+  Serial.print(gSteeringControl);
+  Serial.print(' ');
+  Serial.print(gSensorCTE);
+  Serial.print(' ');
+  Serial.print(rot.mCurrentSpeed);
+  Serial.println();
+}
 
 void cmdWallCalibrate(Args& args) {
+  uint32_t t = millis();
+  sendWallCalHeader();
   sensorsEnable();
   fwd.reset();
   rot.reset();
   motionEnabled = true;
-  rot.startMove(360.0, 300.0, 0.0, 1000.0);
-  int angle = -1;
-  int a;
-  while (rot.mState != Profile::FINISHED) {
-    a = int(rot.mPosition);
-    if (a != angle) {
-      angle = a;
-      Serial << _JUSTIFY(angle, 5);
-      sensorsShow();
-    }
+  steeringReset();
+  gSteeringEnabled = true;
+  fwd.startMove(720.0, 500.0, 0.0, 2000.0);
+  while (not(fwd.isFinished())) {
+    sendWallCalTelemetry(millis()-t,1);
   }
+  gSteeringEnabled = false;
+  uint32_t t2 = millis() -t;
+  spin(180);
+  gSteeringEnabled = true;
+  t = millis();
+  fwd.startMove(550.0, 500.0, 0, 2000.0);
+  while (not(fwd.isFinished())) {
+    sendWallCalTelemetry(millis()-t + t2,1);
+  }
+  gSteeringEnabled = false;
+  // fwd.move(150,500,0,2000);
   motionEnabled = false;
   motorsStop();
   sensorsDisable();
 }
+///////////////////////////////////////////////////////////////////////
 
 void cmdShowFront(Args& args) {
 }
@@ -395,7 +429,7 @@ void cmdTestRot(Args& args) {
 }
 
 void sendProfileHeader() {
-  Serial.println(F("time setPos setSpeed ouput encPos encSpeed encAngle encOmega Left Right Control"));
+  Serial.println(F("time setPos setSpeed actPos actSpeed encAngle encOmega ctrl Left Right steer"));
 }
 
 void sendProfileData(int timeStamp, Profile& prof) {
@@ -414,8 +448,6 @@ void sendProfileData(int timeStamp, Profile& prof) {
   Serial.print(' ');
   Serial.print(setSpeed);
   Serial.print(' ');
-  Serial.print(control);
-  Serial.print(' ');
   Serial.print(actPos);
   Serial.print(' ');
   Serial.print(actSpeed);
@@ -423,6 +455,8 @@ void sendProfileData(int timeStamp, Profile& prof) {
   Serial.print(actAngle);
   Serial.print(' ');
   Serial.print(actOmega);
+  Serial.print(' ');
+  Serial.print(control);
   Serial.print(' ');
   Serial.print(gSensorLeftWall);
   Serial.print(' ');
@@ -511,6 +545,7 @@ void cmdTestSpin(Args& args) {
   }
   sendProfileHeader();
   encoderReset();
+  sensorsEnable();
   fwd.reset();
   rot.reset();
   motionEnabled = true;
@@ -520,6 +555,7 @@ void cmdTestSpin(Args& args) {
   }
   motionEnabled = false;
   motorsStop();
+  sensorsDisable();
   Serial.println();
 }
 
@@ -598,6 +634,70 @@ void cmdSearch() {
   motorsStop();
 }
 
+void turnLeft() {
+  bool savedSteering = gSteeringEnabled;
+  gSteeringEnabled = false;
+  fwd.move(90, SEARCH_SPEED, 0, SEARCH_ACCEL);
+  spin(90);
+  steeringReset();
+  gSteeringEnabled = savedSteering;
+  fwd.move(90, SEARCH_SPEED, SEARCH_SPEED, SEARCH_ACCEL);
+}
+
+void turnRight() {
+  bool savedSteering = gSteeringEnabled;
+  gSteeringEnabled = false;
+  fwd.move(90, SEARCH_SPEED, 0, SEARCH_ACCEL);
+  spin(-90);
+  steeringReset();
+  gSteeringEnabled = savedSteering;
+  fwd.move(90, SEARCH_SPEED, SEARCH_SPEED, SEARCH_ACCEL);
+}
+
+void turnAround() {
+  bool savedSteering = gSteeringEnabled;
+  gSteeringEnabled = false;
+  fwd.startMove(90, SEARCH_SPEED, 0, SEARCH_ACCEL);
+  motorsStop();
+  delay(25);
+  spin(-(330.0 / 2));
+  steeringReset();
+  gSteeringEnabled = savedSteering;
+  fwd.move(90, SEARCH_SPEED, SEARCH_SPEED, SEARCH_ACCEL);
+}
+
+void cmdFollowWall() {
+  encoderReset();
+  fwd.reset();
+  rot.reset();
+  motionEnabled = true;
+  sensorsEnable();
+  gSteeringControl = 0;
+  gSteeringEnabled = true;
+  bool finished = false;
+  Serial.println(F("START"));
+  fwd.move(90.0, SEARCH_SPEED, SEARCH_SPEED, SEARCH_ACCEL);
+  while (not(finished)) {
+    if (not(gLeftWall)) {
+      Serial.print(F("turn"));
+      turnLeft();
+      Serial.println(F(" left"));
+    } else if (not(gRightWall)) {
+      Serial.print(F("turn "));
+      turnRight();
+      Serial.println(F(" right"));
+    } else if (gSensorFrontWall > 25) {
+      Serial.print(F("turn "));
+      turnAround();
+      Serial.println(F(" around"));
+    } else {
+      fwd.move(180.0, SEARCH_SPEED, SEARCH_SPEED, SEARCH_ACCEL);
+    }
+  }
+  sensorsDisable();
+  motionEnabled = false;
+  motorsStop();
+}
 /***
  * smooth turn the robot left or right by 90 degrees
  */
@@ -609,7 +709,7 @@ void turn(const int direction){
  * spin turn the robot left or right by 90 degrees on the spot
  */
 void spin(const float angle) {
-  bool savedSteering =  gSteeringEnabled;
+  bool savedSteering = gSteeringEnabled;
   gSteeringEnabled = false;
   rot.startMove(angle, 360.0, 0.0, 1200.0);
   while (rot.mState != Profile::FINISHED) {

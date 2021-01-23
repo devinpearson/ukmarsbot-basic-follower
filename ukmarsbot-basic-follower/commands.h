@@ -24,6 +24,7 @@ void cmdTestSpin(Args& args);
 void cmdLineCalibrate(Args& args);
 void cmdWallCalibrate(Args& args);
 
+void cmdFollowWall();
 void cmdSearch();
 void spin(const float angle);
 
