@@ -1,7 +1,7 @@
 #ifndef DOROTHY
 #define DOROTHY
 
-#define SETTINGS_VERSION 0x0a
+#define SETTINGS_VERSION 0x0E
 
 #define DEFAULTS_ROBOT_MODE MODE_MAZE
 const int SENSOR_COUNT = 4;
@@ -40,8 +40,8 @@ const int EEPROM_ADDR_SETTINGS = 0x0000;
 #define DEFAULTS_LINE_ALPHA 0.1  // sensor error filter constant
 
 // controller constants for the line follower configuration
-#define DEFAULTS_WALL_KP 1.5
-#define DEFAULTS_WALL_KD 6.0
+#define DEFAULTS_WALL_KP 0.5
+#define DEFAULTS_WALL_KD 10.0
 #define DEFAULTS_WALL_CTE_GAIN 0.0005
 
 // time delay for sensors to respond to emitters
@@ -94,7 +94,7 @@ const int RIGHT_WALL_THRESHOLD = 40;  // minimum value to register a wall
 const float TURN_SPEED = 300;
 const float SEARCH_SPEED = 400;
 const float SEARCH_ACCEL = 2000;
-const float ACCEL_DIST = (SEARCH_SPEED * SEARCH_SPEED) / (2 * SEARCH_ACCEL);  // 63mm
-const float BRAKE_DIST = (SEARCH_SPEED * SEARCH_SPEED - TURN_SPEED*TURN_SPEED) / (2 * SEARCH_ACCEL);  // 63mm
+const float ACCEL_DIST = (SEARCH_SPEED * SEARCH_SPEED) / (2 * SEARCH_ACCEL);                            // 63mm
+const float BRAKE_DIST = (SEARCH_SPEED * SEARCH_SPEED - TURN_SPEED * TURN_SPEED) / (2 * SEARCH_ACCEL);  // 63mm
 
 #endif
