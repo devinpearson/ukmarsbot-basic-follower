@@ -11,6 +11,8 @@
 #include "sensors.h"
 #include "settings.h"
 #include "systick.h"
+#include "profile.h"
+
 
 Blinker blinker = Blinker(LED_BUILTIN).setPeriod(1000).setDuty(50);
 

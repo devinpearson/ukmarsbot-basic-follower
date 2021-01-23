@@ -2,6 +2,7 @@
 #include <arduino.h>
 #include "encoders.h"
 #include "motion.h"
+#include "profile.h"
 #include "sensors.h"
 
 volatile uint32_t ticks = 0;

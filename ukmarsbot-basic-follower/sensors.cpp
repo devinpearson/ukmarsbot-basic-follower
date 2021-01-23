@@ -3,6 +3,7 @@
 #include "board.h"
 #include "digitalWriteFast.h"
 #include "motion.h"
+#include "profile.h"
 #include "settings.h"
 #include "streaming.h"
 

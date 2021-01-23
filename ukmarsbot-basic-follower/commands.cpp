@@ -5,6 +5,7 @@
 #include "encoders.h"
 #include "motion.h"
 #include "motors.h"
+#include "profile.h"
 #include "sensors.h"
 #include "settings.h"
 #include "streaming.h"
@@ -90,16 +91,16 @@ void cmdWallCalibrate(Args& args) {
   gSteeringEnabled = true;
   fwd.startMove(720.0, 500.0, 0.0, 2000.0);
   while (not(fwd.isFinished())) {
-    sendWallCalTelemetry(millis()-t,1);
+    sendWallCalTelemetry(millis() - t, 1);
   }
   gSteeringEnabled = false;
-  uint32_t t2 = millis() -t;
+  uint32_t t2 = millis() - t;
   spin(180);
   gSteeringEnabled = true;
   t = millis();
   fwd.startMove(550.0, 500.0, 0, 2000.0);
   while (not(fwd.isFinished())) {
-    sendWallCalTelemetry(millis()-t + t2,1);
+    sendWallCalTelemetry(millis() - t + t2, 1);
   }
   gSteeringEnabled = false;
   // fwd.move(150,500,0,2000);
