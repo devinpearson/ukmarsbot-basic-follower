@@ -14,7 +14,7 @@ volatile float gSteeringControl;
 bool gSteeringEnabled;
 
 static volatile bool sensorsEnabled = false;
-static float delta;  // used to filter the D term in the steering controller
+static float fTerm;  // used to filter the D term in the steering controller
 static float oldError = 0;
 
 const float errMax = 400;
@@ -75,21 +75,19 @@ float steeringUpdate() {
   float err = 0;
   float pTerm = 0;
   float dTerm = 0;
+  float kP = 0;
+  float kD = 0;
   // always calculate the errors even if not used so that debugging is possible
   switch (settings.mode) {
     case MODE_LINE: {
-      lineSensorUpdate();
-      err = gSensorCTE;
-      pTerm = settings.lineKP * err;
-
-      dTerm = settings.lineKD * (err - oldError);
+      err = lineSensorUpdate();
+      kP = settings.lineKP;
+      kD = settings.lineKD;
     } break;
     case MODE_MAZE: {
-      wallSensorUpdate();
-      err = gSensorCTE;  // fetch it once only in case it changes
-      pTerm = settings.wallKP * err;
-      delta = 0.1 * (err - oldError) + 0.9 * delta;
-      dTerm = settings.wallKD * delta;
+      err = wallSensorUpdate();
+      kP = settings.wallKP;
+      kD = settings.wallKD;
     } break;
     case MODE_NONE:
     default: {
@@ -101,10 +99,14 @@ float steeringUpdate() {
     gSteeringControl = 0;
     return 0;
   }
-
+  pTerm = kP * err;
+  dTerm = kD * (err - oldError);
   oldError = err;
-  float speedAdjust = constrain(fwd.mCurrentSpeed, 500, fwd.mCurrentSpeed);
-  gSteeringControl = speedAdjust * (pTerm + dTerm);
+  pTerm = settings.wallKP * err;
+  fTerm = 0.1 * (dTerm) + 0.9 * fTerm;
+
+  float speedAdjust = constrain(fwd.mCurrentSpeed, 800, fwd.mCurrentSpeed);
+  gSteeringControl = speedAdjust * (pTerm + fTerm);
   gSteeringControl = constrain(gSteeringControl, -5, 5);
   // gSteeringControl = adjustExponential(gSteeringControl, 0.5);
   return gSteeringControl;
@@ -112,7 +114,7 @@ float steeringUpdate() {
 
 void steeringReset() {
   oldError = 0;
-  delta = 0;
+  fTerm = 0;
   gSteeringControl = 0;
 }
 
@@ -175,7 +177,7 @@ void sensorsShow() {
 }
 
 /*********************************** Line tracking **************************/
-void lineSensorUpdate() {
+float lineSensorUpdate() {
   if (settings.mode != MODE_LINE) {
     return;
   }
@@ -200,6 +202,7 @@ void lineSensorUpdate() {
   } else {
     gSensorCTE = 0;
   }
+  return gSensorCTE;
 }
 
 bool turnMarker() {
@@ -220,7 +223,7 @@ void lineSensorShow() {
 }
 
 /*********************************** Wall tracking **************************/
-void wallSensorUpdate() {
+float wallSensorUpdate() {
   if (settings.mode != MODE_MAZE) {
     return;
   }
@@ -257,6 +260,7 @@ void wallSensorUpdate() {
   }
   gSensorCTE = DEFAULTS_WALL_CTE_GAIN * error;
   gSensorFrontError = FRONT_NOMINAL - gSensorFrontWall;  // Too close is negative
+  return gSensorCTE;
 }
 
 void wallSensorShow() {

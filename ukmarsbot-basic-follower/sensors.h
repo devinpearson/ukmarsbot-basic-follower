@@ -50,10 +50,10 @@ void sensorsShow();
 void sensorsSetup();
 void sensorsUpdate();
 
-void lineSensorUpdate();
+float lineSensorUpdate();
 void lineSensorShow();
 
-void wallSensorUpdate();
+float wallSensorUpdate();
 void wallSensorShow();
 
 template <typename T>
