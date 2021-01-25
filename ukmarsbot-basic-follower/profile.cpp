@@ -1,11 +1,11 @@
 
-#include "motion.h"
+#include "profile.h"
 #include <arduino.h>
 #include "defaults.h"
 #include "encoders.h"
+#include "motion.h"
 #include "motors.h"
 #include "settings.h"
-#include "profile.h"
 
 /***
  * Speeds are used for feedback because the position is changed at the start
@@ -101,7 +101,7 @@ void Profile::update() {
     if (mCurrentSpeed > mTargetSpeed) {
       mCurrentSpeed = mTargetSpeed;
     }
-  } else if (mCurrentSpeed > mTargetSpeed) { 
+  } else if (mCurrentSpeed > mTargetSpeed) {
     mCurrentSpeed -= mAcceleration * LOOP_INTERVAL;
     if (mCurrentSpeed < mTargetSpeed) {
       mCurrentSpeed = mTargetSpeed;
