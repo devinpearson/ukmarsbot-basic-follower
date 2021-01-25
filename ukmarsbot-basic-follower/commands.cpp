@@ -82,6 +82,14 @@ void sendWallCalTelemetry(uint32_t t, float error) {
 
 void cmdWallCalibrate(Args& args) {
   uint32_t t = millis();
+  float topSpeed = 500;
+  float accel = 2000;
+  if (args.argc > 1) {
+    topSpeed = atof(args.argv[1]);
+  }
+  if (args.argc > 2) {
+    accel = atof(args.argv[2]);
+  }
   sendWallCalHeader();
   sensorsEnable();
   fwd.reset();
@@ -89,7 +97,7 @@ void cmdWallCalibrate(Args& args) {
   motionEnabled = true;
   steeringReset();
   gSteeringEnabled = true;
-  fwd.startMove(720.0, 500.0, 0.0, 2000.0);
+  fwd.startMove(7 * 180.0, topSpeed, 0.0, accel);
   while (not(fwd.isFinished())) {
     sendWallCalTelemetry(millis() - t, 1);
   }
@@ -98,11 +106,12 @@ void cmdWallCalibrate(Args& args) {
   spin(180);
   gSteeringEnabled = true;
   t = millis();
-  fwd.startMove(550.0, 500.0, 0, 2000.0);
+  fwd.startMove(7 * 180.0, topSpeed, 0, accel);
   while (not(fwd.isFinished())) {
     sendWallCalTelemetry(millis() - t + t2, 1);
   }
   gSteeringEnabled = false;
+  spin(-180);
   // fwd.move(150,500,0,2000);
   motionEnabled = false;
   motorsStop();
