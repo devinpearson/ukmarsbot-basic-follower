@@ -19,11 +19,12 @@ void cmdFilter(float f) {
   float pole[2];
   pole[0] = cos(angle) * alpha;
   pole[1] = sin(angle) * alpha;
-  uint32_t t = ticks;
+  uint32_t t = millis();
   while (!functionButtonPressed()) {
-    while (t == ticks)
-      ;
-    t = ticks;
+    while (t == millis()) {
+      // do nothing
+    }
+    t = millis();
     float out[2];
     out[0] = iirOut[0] * pole[0] - iirOut[1] * pole[1] + getSensor(0);
     out[1] = iirOut[0] * pole[1] - iirOut[1] * pole[0];

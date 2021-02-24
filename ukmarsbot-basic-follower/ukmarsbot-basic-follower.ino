@@ -63,7 +63,7 @@ void setup() {
   Serial.println(settings.wallKP, 5);
   Serial.println(settings.wallKD, 5);
 
-  setupSystick(1000);
+  setup_systick();
   pinMode(USER_IO, OUTPUT);
   pinMode(EMITTER_A, OUTPUT);
   pinMode(EMITTER_B, OUTPUT);

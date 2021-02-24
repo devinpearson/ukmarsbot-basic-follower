@@ -1,13 +1,12 @@
 #include "systick.h"
 #include "encoders.h"
 #include "motion.h"
+#include "motors.h"
 #include "profile.h"
 #include "sensors.h"
-#include "motors.h"
 #include <arduino.h>
 
-volatile uint32_t ticks = 0;
-void setupSystick(int frequency) {
+void setup_systick() {
   bitClear(TCCR2A, WGM20);
   bitSet(TCCR2A, WGM21);
   bitClear(TCCR2B, WGM22);
@@ -20,7 +19,6 @@ void setupSystick(int frequency) {
 }
 
 ISR(TIMER2_COMPA_vect) {
-  ticks++;
   sensorsUpdate();
   set_motor_battery_comp(batteryVolts);
   encoderUpdate();
