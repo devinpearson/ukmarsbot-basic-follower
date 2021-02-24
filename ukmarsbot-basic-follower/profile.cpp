@@ -19,14 +19,13 @@ void Profile::reset() {
   mCurrentSpeed = 0;
   mTargetSpeed = 0;
   mPosition = 0;
-  mAdjustment = 0;
   mError = 0;
   mOldError = 0;
   mState = FINISHED;
   interrupts();
 }
 
-void Profile::startMove(float distance, float topSpeed, float endSpeed, float acceleration) {
+void Profile::start_move(float distance, float topSpeed, float endSpeed, float acceleration) {
   int8_t sign = 1;
   if (distance < 0) {
     distance = -distance;
@@ -50,18 +49,18 @@ void Profile::startMove(float distance, float topSpeed, float endSpeed, float ac
   interrupts();
 }
 
-void Profile::move(float distance, float topSpeed, float endSpeed, float acceleration) {
-  startMove(distance, topSpeed, endSpeed, acceleration);
-  while (!isFinished()) {
+void Profile::make_move(float distance, float topSpeed, float endSpeed, float acceleration) {
+  start_move(distance, topSpeed, endSpeed, acceleration);
+  while (!is_finished()) {
     // do nothing
   }
 }
 
-bool Profile::isFinished() {
+bool Profile::is_finished() {
   return mState == FINISHED;
 }
 
-float Profile::getBraking(float distance, float speed, float endspeed) {
+float Profile::get_braking_acceleration(float distance, float speed, float endspeed) {
   speed = fabsf(speed);
   endspeed = fabsf(endspeed);
   if (endspeed > speed) {
@@ -74,17 +73,14 @@ float Profile::getBraking(float distance, float speed, float endspeed) {
 
 void Profile::adjust(float adjustment) {
   if (motor_controllers_enabled) {
-    mAdjustment = adjustment;
+    mCurrentSpeed += adjustment;
   }
 }
 
+//TODO: Time this method!
 void Profile::update() {
-  if (functionButtonPressed()) {
-    mState = FINISHED;
-  }
-  ///////
   if (mState == ACCELERATE) {
-    float deceleration = getBraking(fabsf(mEndPosition) - fabsf(mPosition), mCurrentSpeed, mEndSpeed);
+    float deceleration = get_braking_acceleration(fabsf(mEndPosition) - fabsf(mPosition), mCurrentSpeed, mEndSpeed);
     if (deceleration >= mAcceleration) {
       mState = BRAKE;
       mTargetSpeed = mEndSpeed;
@@ -93,8 +89,6 @@ void Profile::update() {
       }
     }
   }
-  /////////
-  mCurrentSpeed += mAdjustment;
   /////////
   if (mCurrentSpeed < mTargetSpeed) {
     mCurrentSpeed += mAcceleration * LOOP_INTERVAL;

@@ -40,7 +40,7 @@ void cmdLineCalibrate(Args &args) {
   fwd.reset();
   rot.reset();
   motor_controllers_enabled = true;
-  rot.startMove(360.0, 300.0, 0.0, 1000.0);
+  rot.start_move(360.0, 300.0, 0.0, 1000.0);
   int angle = -1;
   int a;
   while (rot.mState != Profile::FINISHED) {
@@ -98,8 +98,8 @@ void cmdWallCalibrate(Args &args) {
   motor_controllers_enabled = true;
   steeringReset();
   gSteeringEnabled = true;
-  fwd.startMove(7 * 180.0, topSpeed, 0.0, accel);
-  while (not(fwd.isFinished())) {
+  fwd.start_move(7 * 180.0, topSpeed, 0.0, accel);
+  while (not(fwd.is_finished())) {
     sendWallCalTelemetry(millis() - t, 1);
   }
   gSteeringEnabled = false;
@@ -107,13 +107,13 @@ void cmdWallCalibrate(Args &args) {
   spin(180);
   gSteeringEnabled = true;
   t = millis();
-  fwd.startMove(7 * 180.0, topSpeed, 0, accel);
-  while (not(fwd.isFinished())) {
+  fwd.start_move(7 * 180.0, topSpeed, 0, accel);
+  while (not(fwd.is_finished())) {
     sendWallCalTelemetry(millis() - t + t2, 1);
   }
   gSteeringEnabled = false;
   spin(-180);
-  // fwd.move(150,500,0,2000);
+  // fwd.make_move(150,500,0,2000);
   motor_controllers_enabled = false;
   stop_motors();
   sensorsDisable();
@@ -240,7 +240,7 @@ float lineTrial() {
   uint32_t trigger = millis();
   float errorSum = 0;
   uint32_t startTime = millis();
-  fwd.startMove(500, 500, 500, 4000);
+  fwd.start_move(500, 500, 500, 4000);
   enum {
     IDLE,
     STARTING,
@@ -343,7 +343,7 @@ float cmdFollowLine(Args &args) {
   uint32_t trigger = millis();
   float errorSum = 0;
   uint32_t startTime = millis();
-  fwd.startMove(500, speed, speed, 4000);
+  fwd.start_move(500, speed, speed, 4000);
 
   int runState = STARTING;
   digitalWrite(LED_LEFT, 0);
@@ -507,7 +507,7 @@ void cmdTestMove(Args &args) {
   rot.reset();
   motor_controllers_enabled = true;
   t = millis();
-  fwd.startMove(dist, topSpeed, endSpeed, accel);
+  fwd.start_move(dist, topSpeed, endSpeed, accel);
   while (fwd.mState != Profile::FINISHED) {
     sendProfileData(millis() - t, fwd);
   }
@@ -565,7 +565,7 @@ void cmdTestSpin(Args &args) {
   fwd.reset();
   rot.reset();
   motor_controllers_enabled = true;
-  rot.startMove(dist, topSpeed, endSpeed, accel);
+  rot.start_move(dist, topSpeed, endSpeed, accel);
   while (rot.mState != Profile::FINISHED) {
     sendProfileData(millis() - t, rot);
   }
@@ -599,16 +599,16 @@ void cmdTestTurn(Args &args) {
   fwd.reset();
   rot.reset();
   motor_controllers_enabled = true;
-  fwd.startMove(300, speed, speed, 2500);
-  while (!fwd.isFinished()) {
+  fwd.start_move(300, speed, speed, 2500);
+  while (!fwd.is_finished()) {
   }
 
-  rot.startMove(dist, omega, 0, alpha);
+  rot.start_move(dist, omega, 0, alpha);
   while (rot.mState != Profile::FINISHED) {
     sendProfileData(millis() - t, rot);
   }
-  fwd.startMove(300, speed, 0, 2500);
-  while (!fwd.isFinished()) {
+  fwd.start_move(300, speed, 0, 2500);
+  while (!fwd.is_finished()) {
   }
   motor_controllers_enabled = false;
   stop_motors();
@@ -653,33 +653,33 @@ void cmdSearch() {
 void turnLeft() {
   bool savedSteering = gSteeringEnabled;
   gSteeringEnabled = false;
-  fwd.move(90, SEARCH_SPEED, 0, SEARCH_ACCEL);
+  fwd.make_move(90, SEARCH_SPEED, 0, SEARCH_ACCEL);
   spin(90);
   steeringReset();
   gSteeringEnabled = savedSteering;
-  fwd.move(90, SEARCH_SPEED, SEARCH_SPEED, SEARCH_ACCEL);
+  fwd.make_move(90, SEARCH_SPEED, SEARCH_SPEED, SEARCH_ACCEL);
 }
 
 void turnRight() {
   bool savedSteering = gSteeringEnabled;
   gSteeringEnabled = false;
-  fwd.move(90, SEARCH_SPEED, 0, SEARCH_ACCEL);
+  fwd.make_move(90, SEARCH_SPEED, 0, SEARCH_ACCEL);
   spin(-90);
   steeringReset();
   gSteeringEnabled = savedSteering;
-  fwd.move(90, SEARCH_SPEED, SEARCH_SPEED, SEARCH_ACCEL);
+  fwd.make_move(90, SEARCH_SPEED, SEARCH_SPEED, SEARCH_ACCEL);
 }
 
 void turnAround() {
   bool savedSteering = gSteeringEnabled;
   gSteeringEnabled = false;
-  fwd.startMove(90, SEARCH_SPEED, 0, SEARCH_ACCEL);
+  fwd.start_move(90, SEARCH_SPEED, 0, SEARCH_ACCEL);
   stop_motors();
   delay(25);
   spin(-(330.0 / 2));
   steeringReset();
   gSteeringEnabled = savedSteering;
-  fwd.move(90, SEARCH_SPEED, SEARCH_SPEED, SEARCH_ACCEL);
+  fwd.make_move(90, SEARCH_SPEED, SEARCH_SPEED, SEARCH_ACCEL);
 }
 
 void cmdFollowWall() {
@@ -692,7 +692,7 @@ void cmdFollowWall() {
   gSteeringEnabled = true;
   bool finished = false;
   Serial.println(F("START"));
-  fwd.move(90.0, SEARCH_SPEED, SEARCH_SPEED, SEARCH_ACCEL);
+  fwd.make_move(90.0, SEARCH_SPEED, SEARCH_SPEED, SEARCH_ACCEL);
   while (not(finished)) {
     if (not(gLeftWall)) {
       Serial.print(F("turn"));
@@ -707,7 +707,7 @@ void cmdFollowWall() {
       turnAround();
       Serial.println(F(" around"));
     } else {
-      fwd.move(180.0, SEARCH_SPEED, SEARCH_SPEED, SEARCH_ACCEL);
+      fwd.make_move(180.0, SEARCH_SPEED, SEARCH_SPEED, SEARCH_ACCEL);
     }
   }
   sensorsDisable();
@@ -727,7 +727,7 @@ void turn(const int direction){
 void spin(const float angle) {
   bool savedSteering = gSteeringEnabled;
   gSteeringEnabled = false;
-  rot.startMove(angle, 360.0, 0.0, 1200.0);
+  rot.start_move(angle, 360.0, 0.0, 1200.0);
   while (rot.mState != Profile::FINISHED) {
   }
   steeringReset();
@@ -736,9 +736,9 @@ void spin(const float angle) {
 
 void goHalfCell(const bool stopAtEnd) {
   if (stopAtEnd) {
-    fwd.startMove(90.0, SEARCH_SPEED, 0.0, 1500.0);
+    fwd.start_move(90.0, SEARCH_SPEED, 0.0, 1500.0);
   } else {
-    fwd.startMove(90.0, SEARCH_SPEED, SEARCH_SPEED, 1500.0);
+    fwd.start_move(90.0, SEARCH_SPEED, SEARCH_SPEED, 1500.0);
   }
   while (fwd.mState != Profile::FINISHED) {
     delay(1);

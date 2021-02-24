@@ -25,7 +25,7 @@
  * that distances are described.
  *
  * Moves can be started and then left to continue or the profiler can be
- * made to wait until a move has finished.
+ * made to wait until a make_move has finished.
  */
 class Profile {
   public:
@@ -37,29 +37,30 @@ class Profile {
   explicit Profile(float *feedback) : mFeedback(feedback) { reset(); }
   void reset();
   /***
-   * Begins a move sequence. The parameters are set up and the controllers initialised.
+   * Begins a make_move sequence. The parameters are set up and the controllers initialised.
    * On exit the move will be underway with processing happening in the background.
-   * Call the isFinished() method to find out when it is all over.
+   * Call the is_finished() method to find out when it is all over.
    */
-  void startMove(float distance, float topSpeed, float endSpeed, float acceleration);
+  void start_move(float distance, float topSpeed, float endSpeed, float acceleration);
 
   /***
-   * calls startMove() and then waits for the move to finish
+   * calls start_move() and then waits for the make_move to finish
    */
-  void move(float distance, float topSpeed, float endSpeed, float acceleration);
+  void make_move(float distance, float topSpeed, float endSpeed, float acceleration);
 
   /***
    * Return true if the profile has finished processing. The robot may still be moving
    * but it will be at constant velocity.
    * A profile that has never started is also considered to be 'finished'
    */
-  bool isFinished();
+  bool is_finished();
 
   /***
    * calculate the deceleration needed to bringthe profile to the specified end speed
-   * given the current speed and available distance.
+   * given the current speed and available distance. Public for testing.
    */
-  float getBraking(float distance, float speed, float endspeed);
+  float get_braking_acceleration(float distance, float speed, float endspeed);
+
   /***
    * Call update() in each system tick to process the profile.
    */
@@ -89,24 +90,23 @@ class Profile {
    */
   void setMode(int mode);
 
-  float mAcceleration;
-  volatile float mCurrentSpeed;
-  float mAdjustment;
-  float mTargetSpeed;
-  float mEndSpeed;
-  volatile float mPosition;
-  float mEndPosition;
-  int8_t mMode = AUTOMATIC; // MANUAL or AUTOMATIC
+  float mAcceleration = 0;
+  volatile float mCurrentSpeed = 0;
+  float mTargetSpeed = 0;
+  float mEndSpeed = 0;
+  volatile float mPosition = 0;
+  float mEndPosition = 0;
+  int8_t mMode = AUTOMATIC;
   volatile int8_t mState = FINISHED;
-  int8_t mDirection;
-  float mKP;
-  float mKD;
-  float *mFeedback;
-  float mError;
-  float mOldError;
+  int8_t mDirection = 1;
+  float mKP = 0;
+  float mKD = 0;
+  float *mFeedback = nullptr;
+  float mError = 0;
+  float mOldError = 0;
 
-  float mLastInput;
-  float mControlOutput;
+  float mLastInput = 0;
+  float mControlOutput = 0;
 };
 
 extern Profile fwd;

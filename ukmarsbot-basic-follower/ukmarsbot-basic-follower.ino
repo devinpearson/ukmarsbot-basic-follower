@@ -137,7 +137,7 @@ void execute() {
     float dist = atof(args.argv[1]);
     float speed = atof(args.argv[2]);
     float endspeed = atof(args.argv[3]);
-    float deceleration = fwd.getBraking(dist, speed, endspeed);
+    float deceleration = fwd.get_braking_acceleration(dist, speed, endspeed);
     Serial.println(deceleration, 4);
   } else if (strcmp_P(args.argv[0], PSTR("LINE")) == 0) {
     sensorsEnable();
