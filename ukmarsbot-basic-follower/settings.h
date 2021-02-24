@@ -1,9 +1,9 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <Arduino.h>
 #include "board.h"
 #include "defaults.h"
+#include <Arduino.h>
 
 struct SettingsData {
   uint8_t version;
@@ -87,6 +87,6 @@ void settingsReset();
  */
 void settingsPrint();
 
-uint8_t crc8(const void* data, int len);
+uint8_t crc8(const void *data, int len);
 
 #endif

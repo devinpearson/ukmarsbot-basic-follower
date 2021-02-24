@@ -3,7 +3,7 @@
 
 #include "settings.h"
 /**********************************************************************/
-Twiddle::Twiddle(int paramCount, float *iparams[], EvalFunc *evaluator = nullptr)  // Constructor
+Twiddle::Twiddle(int paramCount, float *iparams[], EvalFunc *evaluator = nullptr) // Constructor
 /**********************************************************************/
 {
   mBestError = 9999.99;
@@ -87,20 +87,20 @@ float Twiddle::go() {
       *params[i] += deltas[i];
       err = evaluate();
       if (err <= mBestError) {
-        mBestError = err;             // that made things better
-        deltas[i] *= mTwiddleFactor;  // so try increasing it some more
+        mBestError = err;            // that made things better
+        deltas[i] *= mTwiddleFactor; // so try increasing it some more
       } else {
-        *params[i] -= 2 * deltas[i];  // no better so go the other way
+        *params[i] -= 2 * deltas[i]; // no better so go the other way
         if (*params[i] < 0) {
           *params[i] = 0;
         }
-        err = evaluate();  // and see how that works out
+        err = evaluate(); // and see how that works out
         if (err <= mBestError) {
-          mBestError = err;             // great - that worked
-          deltas[i] *= mTwiddleFactor;  // so try a bigger step
+          mBestError = err;            // great - that worked
+          deltas[i] *= mTwiddleFactor; // so try a bigger step
         } else {
-          *params[i] += deltas[i];      // both changes made things worse so
-          deltas[i] /= mTwiddleFactor;  // restore the parameter and reduce the delta
+          *params[i] += deltas[i];     // both changes made things worse so
+          deltas[i] /= mTwiddleFactor; // restore the parameter and reduce the delta
         }
       }
     }

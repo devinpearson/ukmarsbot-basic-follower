@@ -8,11 +8,10 @@
 #include "encoders.h"
 
 #include "motors.h"
+#include "profile.h"
 #include "sensors.h"
 #include "settings.h"
 #include "systick.h"
-#include "profile.h"
-
 
 Blinker blinker = Blinker(LED_BUILTIN).setPeriod(1000).setDuty(50);
 
@@ -21,7 +20,7 @@ float map(long x, long in_min, long in_max, float out_min, float out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-uint32_t updateInterval = 10;  // milliseconds
+uint32_t updateInterval = 10; // milliseconds
 
 /****************************************************************************/
 
@@ -31,7 +30,7 @@ uint8_t checkReset() {
     Serial.println(F("Power on reset"));
   }
   if (status & 2) {
-    Serial.println(F("External Reset"));  // reset button
+    Serial.println(F("External Reset")); // reset button
   }
   if (status & 4) {
     Serial.println(F("Brownout reset"));
@@ -48,7 +47,6 @@ uint8_t checkReset() {
 
 void setup() {
   Serial.begin(BAUDRATE);
-  checkReset();
   settingsRead();
 
   Serial.println(settings.leftFFSpeedFwd, 5);
@@ -71,7 +69,7 @@ void setup() {
   setup_motors();
   encoderSetup();
   sensorsSetup();
-  motionInit();
+  setup_motor_controllers();
   Serial.println(F("RDY"));
   cliPrompt();
 }
@@ -169,8 +167,6 @@ void execute() {
 
 void loop() {
   blinker.update();
-  // set_left_motor_volts(0);
-  // set_right_motor_volts(0);
   if (getLine()) {
     execute();
     clearLine();

@@ -1,42 +1,42 @@
 #ifndef BLINKER_H
 #define BLINKER_H
-#include <Arduino.h>
 #include "digitalWriteFast.h"
+#include <Arduino.h>
 
 class Blinker {
- public:
+  public:
   const bool NOW = true;
   explicit Blinker(uint8_t pin) : mPin(pin) { pinMode(mPin, OUTPUT); };
 
-  Blinker& setPeriod(uint32_t ms) {
+  Blinker &setPeriod(uint32_t ms) {
     mPeriod = ms;
     mTickTime = millis() + mPeriod / 2;
     update(NOW);
-    return static_cast<Blinker&>(*this);
+    return static_cast<Blinker &>(*this);
   }
 
-  Blinker& setDuty(uint8_t duty) {
+  Blinker &setDuty(uint8_t duty) {
     if (duty > 100) {
       duty = 100;
     }
     mDuty = duty;
     update(NOW);
-    return static_cast<Blinker&>(*this);
+    return static_cast<Blinker &>(*this);
   }
 
   uint8_t getDuty() { return mDuty; }
 
-  Blinker& on() {
+  Blinker &on() {
     setDuty(100);
-    return static_cast<Blinker&>(*this);
+    return static_cast<Blinker &>(*this);
   }
 
-  Blinker& off(uint32_t ms) {
+  Blinker &off(uint32_t ms) {
     setDuty(0);
-    return static_cast<Blinker&>(*this);
+    return static_cast<Blinker &>(*this);
   }
 
-  Blinker& update(bool now = false) {
+  Blinker &update(bool now = false) {
     if (now || millis() > mTickTime) {
       if (mState == 1) {
         mState = 0;
@@ -53,7 +53,7 @@ class Blinker {
         digitalWriteFast(mPin, mState);
       }
     }
-    return static_cast<Blinker&>(*this);
+    return static_cast<Blinker &>(*this);
   }
 
   uint8_t mPin;

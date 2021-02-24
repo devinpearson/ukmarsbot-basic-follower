@@ -37,7 +37,7 @@ const int EEPROM_ADDR_SETTINGS = 0x0000;
 // controller constants for the line follower configuration
 #define DEFAULTS_LINE_KP 1.5
 #define DEFAULTS_LINE_KD 6.0
-#define DEFAULTS_LINE_ALPHA 0.1  // sensor error filter constant
+#define DEFAULTS_LINE_ALPHA 0.1 // sensor error filter constant
 
 // controller constants for the line follower configuration
 #define DEFAULTS_WALL_KP 0.6
@@ -63,10 +63,10 @@ const int EEPROM_ADDR_SETTINGS = 0x0000;
 #define DEFAULTS_RIGHT_FF_STATIC_REV 0.317
 
 // Line sensor thresholds
-const float DEFAULTS_LINE_WIDTH = 19.0;               // ADJUST THIS so that CTE is roughly equal to the error in mm
-const float DEFAULTS_LINE_DETECT_THRESHOLD = 900.0;   // minimum value to register the line - ADJUST TO SUIT
-const float DEFAULTS_LEFT_MARKER_THRESHOLD = 180.0;   // minimum value to register the turn marker
-const float DEFAULTS_RIGHT_MARKER_THRESHOLD = 180.0;  // minimum value to register the start marker
+const float DEFAULTS_LINE_WIDTH = 19.0;              // ADJUST THIS so that CTE is roughly equal to the error in mm
+const float DEFAULTS_LINE_DETECT_THRESHOLD = 900.0;  // minimum value to register the line - ADJUST TO SUIT
+const float DEFAULTS_LEFT_MARKER_THRESHOLD = 180.0;  // minimum value to register the turn marker
+const float DEFAULTS_RIGHT_MARKER_THRESHOLD = 180.0; // minimum value to register the start marker
 
 // wall sensor thresholds and constants
 // the default values for the front sensor when the robot is backed up to a wall
@@ -86,15 +86,15 @@ const float LEFT_NOMINAL = 100.0;
 const float RIGHT_NOMINAL = 100.0;
 
 // the values above which, a wall is seen
-const int FRONT_WALL_THRESHOLD = 20;  // minimum value to register a wall
-const int LEFT_WALL_THRESHOLD = 40;   // minimum value to register a wall
-const int RIGHT_WALL_THRESHOLD = 40;  // minimum value to register a wall
+const int FRONT_WALL_THRESHOLD = 20; // minimum value to register a wall
+const int LEFT_WALL_THRESHOLD = 40;  // minimum value to register a wall
+const int RIGHT_WALL_THRESHOLD = 40; // minimum value to register a wall
 
 // search and run speeds
 const float TURN_SPEED = 300;
 const float SEARCH_SPEED = 400;
 const float SEARCH_ACCEL = 2000;
-const float ACCEL_DIST = (SEARCH_SPEED * SEARCH_SPEED) / (2 * SEARCH_ACCEL);                            // 63mm
-const float BRAKE_DIST = (SEARCH_SPEED * SEARCH_SPEED - TURN_SPEED * TURN_SPEED) / (2 * SEARCH_ACCEL);  // 63mm
+const float ACCEL_DIST = (SEARCH_SPEED * SEARCH_SPEED) / (2 * SEARCH_ACCEL);                           // 63mm
+const float BRAKE_DIST = (SEARCH_SPEED * SEARCH_SPEED - TURN_SPEED * TURN_SPEED) / (2 * SEARCH_ACCEL); // 63mm
 
 #endif

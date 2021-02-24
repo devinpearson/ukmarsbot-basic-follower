@@ -1,14 +1,16 @@
 #ifndef PROFILE_H
 #define PROFILE_H
 
-
 #include <stdint.h>
 
 class Profile {
- public:
-  enum { ACCELERATE, BRAKE, FINISHED };
-  enum { MANUAL, AUTOMATIC };
-  explicit Profile(float* feedback) : mFeedback(feedback) { reset(); }
+  public:
+  enum { ACCELERATE,
+         BRAKE,
+         FINISHED };
+  enum { MANUAL,
+         AUTOMATIC };
+  explicit Profile(float *feedback) : mFeedback(feedback) { reset(); }
   void reset();
   /***
    * Begins a move sequence. The parameters are set up and the controllers initialised.
@@ -70,12 +72,12 @@ class Profile {
   float mEndSpeed;
   volatile float mPosition;
   float mEndPosition;
-  int8_t mMode = AUTOMATIC;  // MANUAL or AUTOMATIC
+  int8_t mMode = AUTOMATIC; // MANUAL or AUTOMATIC
   volatile int8_t mState = FINISHED;
   int8_t mDirection;
   float mKP;
   float mKD;
-  float* mFeedback;
+  float *mFeedback;
   float mError;
   float mOldError;
 

@@ -26,8 +26,6 @@ add_executable(ukmarsbot_system_test
         defaults.h
         encoders.cpp
         encoders.h
-        motion.cpp
-        motion.h
         motors.cpp
         motors.h
         sensors.cpp

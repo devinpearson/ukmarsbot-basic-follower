@@ -73,7 +73,7 @@ float Profile::getBraking(float distance, float speed, float endspeed) {
 }
 
 void Profile::adjust(float adjustment) {
-  if (motionEnabled) {
+  if (motor_controllers_enabled) {
     mAdjustment = adjustment;
   }
 }

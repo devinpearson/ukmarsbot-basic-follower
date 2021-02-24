@@ -1,5 +1,4 @@
 #include "commands.h"
-#include <arduino.h>
 #include "cli.h"
 #include "digitalWriteFast.h"
 #include "encoders.h"
@@ -11,6 +10,7 @@
 #include "streaming.h"
 #include "systick.h"
 #include "twiddle.h"
+#include <arduino.h>
 
 void cmdFilter(float f) {
   float iirOut[2];
@@ -35,11 +35,11 @@ void cmdFilter(float f) {
   }
 }
 
-void cmdLineCalibrate(Args& args) {
+void cmdLineCalibrate(Args &args) {
   sensorsEnable();
   fwd.reset();
   rot.reset();
-  motionEnabled = true;
+  motor_controllers_enabled = true;
   rot.startMove(360.0, 300.0, 0.0, 1000.0);
   int angle = -1;
   int a;
@@ -51,7 +51,7 @@ void cmdLineCalibrate(Args& args) {
       sensorsShow();
     }
   }
-  motionEnabled = false;
+  motor_controllers_enabled = false;
   stop_motors();
   sensorsDisable();
 }
@@ -81,7 +81,7 @@ void sendWallCalTelemetry(uint32_t t, float error) {
   Serial.println();
 }
 
-void cmdWallCalibrate(Args& args) {
+void cmdWallCalibrate(Args &args) {
   uint32_t t = millis();
   float topSpeed = 500;
   float accel = 2000;
@@ -95,7 +95,7 @@ void cmdWallCalibrate(Args& args) {
   sensorsEnable();
   fwd.reset();
   rot.reset();
-  motionEnabled = true;
+  motor_controllers_enabled = true;
   steeringReset();
   gSteeringEnabled = true;
   fwd.startMove(7 * 180.0, topSpeed, 0.0, accel);
@@ -114,28 +114,28 @@ void cmdWallCalibrate(Args& args) {
   gSteeringEnabled = false;
   spin(-180);
   // fwd.move(150,500,0,2000);
-  motionEnabled = false;
+  motor_controllers_enabled = false;
   stop_motors();
   sensorsDisable();
 }
 ///////////////////////////////////////////////////////////////////////
 
-void cmdShowFront(Args& args) {
+void cmdShowFront(Args &args) {
 }
 
-void cmdShowLeft(Args& args) {
+void cmdShowLeft(Args &args) {
 }
 
-void cmdShowRight(Args& args) {
+void cmdShowRight(Args &args) {
 }
 
-void cmdShowBattery(Args& args) {
+void cmdShowBattery(Args &args) {
 }
 
-void cmdShowFunction(Args& args) {
+void cmdShowFunction(Args &args) {
 }
 
-void cmdShowEncoders(Args& args) {
+void cmdShowEncoders(Args &args) {
   Serial.println(F("Encoders:"));
   while (true) {
     Serial.print(F("Left = "));
@@ -168,7 +168,7 @@ void cmdShowEncoders(Args& args) {
  * e.g. FWD  4.5 1000  => implies left = +4.5V, right = -4.5V, 1200ms run
  */
 
-void cmdTestFwd(Args& args) {
+void cmdTestFwd(Args &args) {
   uint32_t endTime = 1000;
   int volts = 3;
   if (args.argc > 1) {
@@ -198,7 +198,11 @@ void cmdTestFwd(Args& args) {
   stop_motors();
 }
 
-enum { IDLE, STARTING, RUNNING, STOPPING, CROSSING };
+enum { IDLE,
+       STARTING,
+       RUNNING,
+       STOPPING,
+       CROSSING };
 void sendLineHeader() {
   Serial.println();
   Serial.println(F("time position Start Left Right Turn Error FastError rawError"));
@@ -230,7 +234,7 @@ float lineTrial() {
   steeringReset();
   fwd.reset();
   rot.reset();
-  motionEnabled = true;
+  motor_controllers_enabled = true;
   gSteeringEnabled = true;
   gSteeringControl = 0;
   uint32_t trigger = millis();
@@ -253,21 +257,21 @@ float lineTrial() {
     digitalWrite(LED_RIGHT, markers & 2);
     digitalWrite(LED_LEFT, markers & 1);
     switch (runState) {
-      case STARTING:
-        if (markers == 3) {
-          runState = CROSSING;
-        }
-        break;
-      case CROSSING:
-        if (markers == 0) {
-          runState = RUNNING;
-        }
-        break;
-      case RUNNING:
-        if (markers == 3) {
-          runState = STOPPING;
-        }
-        break;
+    case STARTING:
+      if (markers == 3) {
+        runState = CROSSING;
+      }
+      break;
+    case CROSSING:
+      if (markers == 0) {
+        runState = RUNNING;
+      }
+      break;
+    case RUNNING:
+      if (markers == 3) {
+        runState = STOPPING;
+      }
+      break;
     }
     if (fwd.mPosition > 2520) {
       runState = STOPPING;
@@ -292,14 +296,14 @@ float lineTrial() {
   sensorsDisable();
   stop_motors();
   delay(250);
-  motionEnabled = false;
+  motor_controllers_enabled = false;
   gSteeringEnabled = false;
   return errorSum;
 }
 
-void cmdTestTwiddle(Args& args) {
-  motionInit();
-  float* params[2] = {&settings.lineKP, &settings.lineKD};
+void cmdTestTwiddle(Args &args) {
+  setup_motor_controllers();
+  float *params[2] = {&settings.lineKP, &settings.lineKD};
   Serial.print(*params[0], 6);
   Serial.print("  ");
   Serial.print(*params[1], 6);
@@ -309,7 +313,7 @@ void cmdTestTwiddle(Args& args) {
   tw.go();
 }
 
-float cmdFollowLine(Args& args) {
+float cmdFollowLine(Args &args) {
   float speed = 500;
   if (args.argc > 1) {
     speed = atof(args.argv[1]);
@@ -335,7 +339,7 @@ float cmdFollowLine(Args& args) {
   rot.reset();
   gSteeringControl = 0;
   gSteeringEnabled = true;
-  motionEnabled = true;
+  motor_controllers_enabled = true;
   uint32_t trigger = millis();
   float errorSum = 0;
   uint32_t startTime = millis();
@@ -351,21 +355,21 @@ float cmdFollowLine(Args& args) {
     digitalWrite(LED_RIGHT, markers & 2);
     digitalWrite(LED_LEFT, markers & 1);
     switch (runState) {
-      case STARTING:
-        if (markers == 3) {
-          runState = CROSSING;
-        }
-        break;
-      case CROSSING:
-        if (markers == 0) {
-          runState = RUNNING;
-        }
-        break;
-      case RUNNING:
-        if (markers == 3) {
-          runState = STOPPING;
-        }
-        break;
+    case STARTING:
+      if (markers == 3) {
+        runState = CROSSING;
+      }
+      break;
+    case CROSSING:
+      if (markers == 0) {
+        runState = RUNNING;
+      }
+      break;
+    case RUNNING:
+      if (markers == 3) {
+        runState = STOPPING;
+      }
+      break;
     }
     if (fwd.mPosition > 2520) {
       runState = STOPPING;
@@ -389,7 +393,7 @@ float cmdFollowLine(Args& args) {
   Serial.println(F("\"\n"));
   sensorsDisable();
   stop_motors();
-  motionEnabled = false;
+  motor_controllers_enabled = false;
   delay(250);
   gSteeringEnabled = false;
   return errorSum;
@@ -410,7 +414,7 @@ float cmdFollowLine(Args& args) {
  * e.g. FWD 1200 4.5
  */
 
-void cmdTestRot(Args& args) {
+void cmdTestRot(Args &args) {
   uint32_t endTime = 1500;
   int volts = 3;
   if (args.argc > 1) {
@@ -420,6 +424,7 @@ void cmdTestRot(Args& args) {
     endTime = atol(args.argv[1]);
   }
   encoderReset();
+
   set_left_motor_volts(-volts);
   set_right_motor_volts(+volts);
   uint32_t t = millis();
@@ -443,7 +448,7 @@ void sendProfileHeader() {
   Serial.println(F("time setPos setSpeed actPos actSpeed encAngle encOmega ctrl Left Right steer"));
 }
 
-void sendProfileData(int timeStamp, Profile& prof) {
+void sendProfileData(int timeStamp, Profile &prof) {
   // gather the data quickly for consistency
   float setPos = prof.mPosition;
   float setSpeed = prof.mCurrentSpeed;
@@ -477,7 +482,7 @@ void sendProfileData(int timeStamp, Profile& prof) {
   Serial.println();
 }
 
-void cmdTestMove(Args& args) {
+void cmdTestMove(Args &args) {
   uint32_t t = millis();
   float dist = atof(args.argv[1]);
   float topSpeed = atof(args.argv[2]);
@@ -500,20 +505,20 @@ void cmdTestMove(Args& args) {
   gSteeringEnabled = true;
   fwd.reset();
   rot.reset();
-  motionEnabled = true;
+  motor_controllers_enabled = true;
   t = millis();
   fwd.startMove(dist, topSpeed, endSpeed, accel);
   while (fwd.mState != Profile::FINISHED) {
     sendProfileData(millis() - t, fwd);
   }
 
-  motionEnabled = false;
+  motor_controllers_enabled = false;
   stop_motors();
   sensorsDisable();
   Serial.println();
 }
 
-void cmdTestMotors(Args& args) {
+void cmdTestMotors(Args &args) {
   float leftVolts = atof(args.argv[1]);
   float rightVolts = atof(args.argv[2]);
   encoderReset();
@@ -539,7 +544,7 @@ void cmdTestMotors(Args& args) {
   Serial.println();
 }
 
-void cmdTestSpin(Args& args) {
+void cmdTestSpin(Args &args) {
   uint32_t t = millis();
   float dist = atof(args.argv[1]);
   float topSpeed = atof(args.argv[2]);
@@ -559,18 +564,18 @@ void cmdTestSpin(Args& args) {
   sensorsEnable();
   fwd.reset();
   rot.reset();
-  motionEnabled = true;
+  motor_controllers_enabled = true;
   rot.startMove(dist, topSpeed, endSpeed, accel);
   while (rot.mState != Profile::FINISHED) {
     sendProfileData(millis() - t, rot);
   }
-  motionEnabled = false;
+  motor_controllers_enabled = false;
   stop_motors();
   sensorsDisable();
   Serial.println();
 }
 
-void cmdTestTurn(Args& args) {
+void cmdTestTurn(Args &args) {
   uint32_t t = millis();
   float dist = atof(args.argv[1]);
   float speed = atof(args.argv[2]);
@@ -593,7 +598,7 @@ void cmdTestTurn(Args& args) {
   encoderReset();
   fwd.reset();
   rot.reset();
-  motionEnabled = true;
+  motor_controllers_enabled = true;
   fwd.startMove(300, speed, speed, 2500);
   while (!fwd.isFinished()) {
   }
@@ -605,7 +610,7 @@ void cmdTestTurn(Args& args) {
   fwd.startMove(300, speed, 0, 2500);
   while (!fwd.isFinished()) {
   }
-  motionEnabled = false;
+  motor_controllers_enabled = false;
   stop_motors();
   Serial.println();
 }
@@ -614,7 +619,7 @@ void cmdSearch() {
   encoderReset();
   fwd.reset();
   rot.reset();
-  motionEnabled = true;
+  motor_controllers_enabled = true;
   sensorsEnable();
   gSteeringControl = 0;
   gSteeringEnabled = true;
@@ -641,7 +646,7 @@ void cmdSearch() {
     }
   }
   sensorsDisable();
-  motionEnabled = false;
+  motor_controllers_enabled = false;
   stop_motors();
 }
 
@@ -681,7 +686,7 @@ void cmdFollowWall() {
   encoderReset();
   fwd.reset();
   rot.reset();
-  motionEnabled = true;
+  motor_controllers_enabled = true;
   sensorsEnable();
   gSteeringControl = 0;
   gSteeringEnabled = true;
@@ -706,7 +711,7 @@ void cmdFollowWall() {
     }
   }
   sensorsDisable();
-  motionEnabled = false;
+  motor_controllers_enabled = false;
   stop_motors();
 }
 /***

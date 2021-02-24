@@ -1,11 +1,11 @@
 #include "sensors.h"
-#include <arduino.h>
 #include "board.h"
 #include "digitalWriteFast.h"
-#include "motion.h"
+
 #include "profile.h"
 #include "settings.h"
 #include "streaming.h"
+#include <arduino.h>
 
 volatile int sensor[SENSOR_COUNT];
 volatile float batteryVolts;
@@ -14,7 +14,7 @@ volatile float gSteeringControl;
 bool gSteeringEnabled;
 
 static volatile bool sensorsEnabled = false;
-static float fTerm;  // used to filter the D term in the steering controller
+static float fTerm; // used to filter the D term in the steering controller
 static float oldError = 0;
 
 const float errMax = 400;
@@ -27,7 +27,7 @@ volatile int gSensorRightWall;
 volatile bool gLeftWall;
 volatile bool gFrontWall;
 volatile bool gRightWall;
-volatile float gSensorFrontError;  // zero when robot in cell centre
+volatile float gSensorFrontError; // zero when robot in cell centre
 
 /*** line sensor variables ***/
 // although the values need not be global variables, it is helpful
@@ -79,20 +79,20 @@ float steeringUpdate() {
   float kD = 0;
   // always calculate the errors even if not used so that debugging is possible
   switch (settings.mode) {
-    case MODE_LINE: {
-      err = lineSensorUpdate();
-      kP = settings.lineKP;
-      kD = settings.lineKD;
-    } break;
-    case MODE_MAZE: {
-      err = wallSensorUpdate();
-      kP = settings.wallKP;
-      kD = settings.wallKD;
-    } break;
-    case MODE_NONE:
-    default: {
-      err = 0;
-    } break;
+  case MODE_LINE: {
+    err = lineSensorUpdate();
+    kP = settings.lineKP;
+    kD = settings.lineKD;
+  } break;
+  case MODE_MAZE: {
+    err = wallSensorUpdate();
+    kP = settings.wallKP;
+    kD = settings.wallKD;
+  } break;
+  case MODE_NONE:
+  default: {
+    err = 0;
+  } break;
   }
 
   if (!gSteeringEnabled) {
@@ -225,7 +225,7 @@ void lineSensorShow() {
 /*********************************** Wall tracking **************************/
 float wallSensorUpdate() {
   if (settings.mode != MODE_MAZE) {
-    return;
+    return 0;
   }
   // a single floating point multiply is MUCH less expensive than using
   // a 32 bit multiply followed by a divide!
@@ -259,7 +259,7 @@ float wallSensorUpdate() {
     error = 0;
   }
   gSensorCTE = DEFAULTS_WALL_CTE_GAIN * error;
-  gSensorFrontError = FRONT_NOMINAL - gSensorFrontWall;  // Too close is negative
+  gSensorFrontError = FRONT_NOMINAL - gSensorFrontWall; // Too close is negative
   return gSensorCTE;
 }
 

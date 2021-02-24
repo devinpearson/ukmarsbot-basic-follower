@@ -103,7 +103,7 @@ inline Print &operator<<(Print &obj, const _FLOAT &arg) {
 enum _EndLineCode { endl };
 
 inline Print &operator<<(Print &obj, _EndLineCode arg) {
-  (void)arg;  // arg is a dummy parameter to get the signature match
+  (void)arg; // arg is a dummy parameter to get the signature match
   obj.println();
   return obj;
 }

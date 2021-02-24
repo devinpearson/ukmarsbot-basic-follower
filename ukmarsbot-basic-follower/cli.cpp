@@ -43,7 +43,7 @@ int getLine() {
 
 Args cliSplit() {
   Args args = {0};
-  char* token;
+  char *token;
   for (token = strtok(inputLine, " "); token != NULL; token = strtok(NULL, " ")) {
     args.argv[args.argc] = token;
     args.argc++;

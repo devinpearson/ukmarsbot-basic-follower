@@ -15,9 +15,9 @@ inline bool functionButtonPressed() {
 }
 inline void waitForButtonClick() {
   while (not(functionButtonPressed())) {
-  };  // do nothing
+  }; // do nothing
   while (functionButtonPressed()) {
-  };  // do nothing
+  }; // do nothing
 }
 
 /*** wall sensor variables ***/
@@ -28,7 +28,7 @@ extern volatile int gSensorRightWall;
 extern volatile bool gLeftWall;
 extern volatile bool gFrontWall;
 extern volatile bool gRightWall;
-extern volatile float gSensorFrontError;  // zero when robot in cell centre
+extern volatile float gSensorFrontError; // zero when robot in cell centre
 
 /*** line sensor variables ***/
 extern volatile float gSensorStartMarker;

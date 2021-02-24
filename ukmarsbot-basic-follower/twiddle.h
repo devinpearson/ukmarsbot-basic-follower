@@ -25,7 +25,7 @@ typedef float(EvalFunc)();
  *
  */
 class Twiddle {
- public:
+  public:
   Twiddle(int paramCount, float *iparams[], EvalFunc *evaluator);
   void logStep();
   void logTrial(float err);
