@@ -3,6 +3,30 @@
 
 #include <stdint.h>
 
+/*** @brief Provides a way to manage and encaapsulate speed profiles
+ *
+ * Simply setting the speed of a robot is not enough for full control
+ * of a robot. Most significantly, the robot cannot instantaneously change
+ * speed so the profiler manages the acceleration and deceleration of
+ * the robot so that speed changes are achieved smoothly and with
+ * regard for the physical capabilities of the robot.
+ *
+ * By placing the profiler into a C++ class, the code can be shared by
+ * both forward and rotary motion while still keeping the state variables
+ * separate.
+ *
+ * In practice the main task of the profiler is to make it possible to issue
+ * commands like
+ * "start moving with a target speed of x mm/s and acceleration of a mm/s/s"
+ * "move s mm witha  maximum speed of x mm/s and a terminal speed of y mm/s"
+ *
+ * Because the same code is available for both forward and rotary motion, it is
+ * easy to substitute degrees, degrees/second and degrees/s/s anywhere
+ * that distances are described.
+ *
+ * Moves can be started and then left to continue or the profiler can be
+ * made to wait until a move has finished.
+ */
 class Profile {
   public:
   enum { ACCELERATE,
