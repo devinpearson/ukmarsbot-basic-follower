@@ -1,6 +1,6 @@
 #include "twiddle.h"
 #include "commands.h"
-#include "motion.h"
+
 #include "settings.h"
 /**********************************************************************/
 Twiddle::Twiddle(int paramCount, float *iparams[], EvalFunc *evaluator = nullptr)  // Constructor

@@ -4,9 +4,14 @@
 #include <arduino.h>
 
 /***
- * The motors module provides low level control of the drive motors
+ * The motors module provides low  control of the drive motors
  * in a two-wheel differential drive robot.
  */
+
+extern bool motor_controllers_enabled;
+
+void update_motor_controllers();
+void setup_motor_controllers();
 
 enum { PWM_488_HZ,
        PWM_3906_HZ,

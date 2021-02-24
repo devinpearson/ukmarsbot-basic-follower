@@ -1,11 +1,11 @@
 
 #include "profile.h"
-#include <arduino.h>
 #include "defaults.h"
 #include "encoders.h"
-#include "motion.h"
 #include "motors.h"
+#include "sensors.h"
 #include "settings.h"
+#include <arduino.h>
 
 /***
  * Speeds are used for feedback because the position is changed at the start

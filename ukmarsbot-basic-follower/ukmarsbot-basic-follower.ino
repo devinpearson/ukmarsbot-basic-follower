@@ -6,7 +6,7 @@
 #include "cli.h"
 #include "commands.h"
 #include "encoders.h"
-#include "motion.h"
+
 #include "motors.h"
 #include "sensors.h"
 #include "settings.h"

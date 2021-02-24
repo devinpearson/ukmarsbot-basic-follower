@@ -1,8 +1,54 @@
 
 #include "motors.h"
 #include "digitalWriteFast.h"
+#include "profile.h"
 #include "settings.h"
 #include <arduino.h>
+
+bool motor_controllers_enabled;
+
+// float fwdError;
+// float rotError;
+
+// float fwdVolts;
+// float rotVolts;
+
+void setup_motor_controllers() {
+  motor_controllers_enabled = false;
+  fwd.mKP = settings.fwdKP;
+  fwd.mKD = settings.fwdKD;
+  rot.mKP = settings.rotKP;
+  rot.mKD = settings.rotKD;
+}
+
+void update_motor_controllers() {
+  fwd.controllerUpdate();
+  rot.controllerUpdate();
+  // assume both motors behave the same
+  const float k_velocity_ff = (1.0 / 280.0);
+
+  float left_volts = 0;
+  float right_volts = 0;
+
+  left_volts += fwd.mControlOutput;
+  right_volts += fwd.mControlOutput;
+
+  left_volts -= rot.mControlOutput;
+  right_volts += rot.mControlOutput;
+
+  float fwd_ff = fwd.mCurrentSpeed * k_velocity_ff;
+  float rot_ff = rot.mCurrentSpeed * (MOUSE_RADIUS / (57.29)) * k_velocity_ff;
+  // rot_ff = 0;
+
+  left_volts += fwd_ff;
+  right_volts += fwd_ff;
+
+  left_volts -= rot_ff;
+  right_volts += rot_ff;
+
+  set_left_motor_volts(left_volts);
+  set_right_motor_volts(right_volts);
+}
 
 /****************************************************************************/
 /*   MOTORS and PWM                                                         */
