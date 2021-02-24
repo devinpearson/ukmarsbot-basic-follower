@@ -51,7 +51,7 @@ void cmdLineCalibrate(Args& args) {
     }
   }
   motionEnabled = false;
-  motorsStop();
+  stop_motors();
   sensorsDisable();
 }
 //////////////////////////////////////////////////////////////////////
@@ -114,7 +114,7 @@ void cmdWallCalibrate(Args& args) {
   spin(-180);
   // fwd.move(150,500,0,2000);
   motionEnabled = false;
-  motorsStop();
+  stop_motors();
   sensorsDisable();
 }
 ///////////////////////////////////////////////////////////////////////
@@ -178,8 +178,8 @@ void cmdTestFwd(Args& args) {
   }
   encoderReset();
   Serial.println(F("time(ms), encSpeed, encPos"));
-  setLeftMotorVolts(volts);
-  setRightMotorVolts(volts);
+  set_left_motor_volts(volts);
+  set_right_motor_volts(volts);
   uint32_t t = millis();
   endTime += t;
   while (millis() < endTime) {
@@ -194,7 +194,7 @@ void cmdTestFwd(Args& args) {
     Serial.print(pos, 4);
     Serial.println();
   }
-  motorsStop();
+  stop_motors();
 }
 
 enum { IDLE, STARTING, RUNNING, STOPPING, CROSSING };
@@ -289,7 +289,7 @@ float lineTrial() {
   Serial.print(errorSum);
   Serial.println('\n');
   sensorsDisable();
-  motorsStop();
+  stop_motors();
   delay(250);
   motionEnabled = false;
   gSteeringEnabled = false;
@@ -387,7 +387,7 @@ float cmdFollowLine(Args& args) {
   Serial.print(errorSum);
   Serial.println(F("\"\n"));
   sensorsDisable();
-  motorsStop();
+  stop_motors();
   motionEnabled = false;
   delay(250);
   gSteeringEnabled = false;
@@ -419,8 +419,8 @@ void cmdTestRot(Args& args) {
     endTime = atol(args.argv[1]);
   }
   encoderReset();
-  setLeftMotorVolts(-volts);
-  setRightMotorVolts(+volts);
+  set_left_motor_volts(-volts);
+  set_right_motor_volts(+volts);
   uint32_t t = millis();
   endTime += t;
   while (millis() < endTime) {
@@ -435,7 +435,7 @@ void cmdTestRot(Args& args) {
     Serial.print(pos, 4);
     Serial.println();
   }
-  motorsStop();
+  stop_motors();
 }
 
 void sendProfileHeader() {
@@ -507,7 +507,7 @@ void cmdTestMove(Args& args) {
   }
 
   motionEnabled = false;
-  motorsStop();
+  stop_motors();
   sensorsDisable();
   Serial.println();
 }
@@ -518,8 +518,8 @@ void cmdTestMotors(Args& args) {
   encoderReset();
   fwd.reset();
   rot.reset();
-  setLeftMotorVolts(leftVolts);
-  setRightMotorVolts(rightVolts);
+  set_left_motor_volts(leftVolts);
+  set_right_motor_volts(rightVolts);
   while (true) {
     Serial.print(F("Left = "));
     Serial.print(encoderLeftCount);
@@ -534,7 +534,7 @@ void cmdTestMotors(Args& args) {
       break;
     }
   }
-  motorsStop();
+  stop_motors();
   Serial.println();
 }
 
@@ -564,7 +564,7 @@ void cmdTestSpin(Args& args) {
     sendProfileData(millis() - t, rot);
   }
   motionEnabled = false;
-  motorsStop();
+  stop_motors();
   sensorsDisable();
   Serial.println();
 }
@@ -605,7 +605,7 @@ void cmdTestTurn(Args& args) {
   while (!fwd.isFinished()) {
   }
   motionEnabled = false;
-  motorsStop();
+  stop_motors();
   Serial.println();
 }
 
@@ -641,7 +641,7 @@ void cmdSearch() {
   }
   sensorsDisable();
   motionEnabled = false;
-  motorsStop();
+  stop_motors();
 }
 
 void turnLeft() {
@@ -668,7 +668,7 @@ void turnAround() {
   bool savedSteering = gSteeringEnabled;
   gSteeringEnabled = false;
   fwd.startMove(90, SEARCH_SPEED, 0, SEARCH_ACCEL);
-  motorsStop();
+  stop_motors();
   delay(25);
   spin(-(330.0 / 2));
   steeringReset();
@@ -706,7 +706,7 @@ void cmdFollowWall() {
   }
   sensorsDisable();
   motionEnabled = false;
-  motorsStop();
+  stop_motors();
 }
 /***
  * smooth turn the robot left or right by 90 degrees

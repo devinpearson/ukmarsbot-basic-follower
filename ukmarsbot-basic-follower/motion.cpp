@@ -74,8 +74,8 @@ void motionUpdate() {
   float rightSpeed = fwd.mCurrentSpeed + tangentSpeed;
   leftVolts += leftFeedForward(leftSpeed);
   rightVolts += rightFeedForward(rightSpeed);
-  setLeftMotorVolts(leftVolts);
-  setRightMotorVolts(rightVolts);
+  set_left_motor_volts(leftVolts);
+  set_right_motor_volts(rightVolts);
 }
 
 ///////////////////////////////////////////////////

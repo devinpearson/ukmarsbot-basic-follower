@@ -68,7 +68,7 @@ void setup() {
   pinMode(EMITTER_A, OUTPUT);
   pinMode(EMITTER_B, OUTPUT);
   pinMode(LED_BUILTIN, OUTPUT);
-  motorSetup();
+  setup_motors();
   encoderSetup();
   sensorsSetup();
   motionInit();
@@ -111,9 +111,6 @@ void execute() {
   } else if (strcmp_P(args.argv[0], PSTR("BATT")) == 0) {
     Serial.print(batteryVolts, 2);
     Serial.println(F(" Volts"));
-  } else if (strcmp_P(args.argv[0], PSTR("BEEP")) == 0) {
-    motorBeep(500);
-    motorBeep(1000);
   } else if (strcmp_P(args.argv[0], PSTR("ENC")) == 0) {
     cmdShowEncoders(args);
   } else if (strcmp_P(args.argv[0], PSTR("BLINK")) == 0) {
@@ -172,8 +169,8 @@ void execute() {
 
 void loop() {
   blinker.update();
-  // setLeftMotorVolts(0);
-  // setRightMotorVolts(0);
+  // set_left_motor_volts(0);
+  // set_right_motor_volts(0);
   if (getLine()) {
     execute();
     clearLine();
