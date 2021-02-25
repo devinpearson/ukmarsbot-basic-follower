@@ -1,7 +1,7 @@
 #ifndef DOROTHY
 #define DOROTHY
 
-#define SETTINGS_VERSION 0x02
+#define SETTINGS_VERSION 0x03
 
 #define DEFAULTS_ROBOT_MODE MODE_MAZE
 const int SENSOR_COUNT = 4;
@@ -28,12 +28,12 @@ const int EEPROM_ADDR_SETTINGS = 0x0000;
 // rotation uses the difference between the encoders
 #define DEFAULTS_DEG_PER_COUNT ((360.0 * DEFAULTS_MM_PER_COUNT) / (2.0 * PI * MOUSE_RADIUS))
 
-#define DEFAULTS_FWD_KP 0.05
-#define DEFAULTS_FWD_KI 1.0
+#define DEFAULTS_FWD_KP 0.01
+#define DEFAULTS_FWD_KI 0.5
 #define DEFAULTS_FWD_KD 0.0
 
-#define DEFAULTS_ROT_KP 0.05
-#define DEFAULTS_ROT_KI 1.0
+#define DEFAULTS_ROT_KP 0.01
+#define DEFAULTS_ROT_KI 0.5
 #define DEFAULTS_ROT_KD 0.0
 
 // controller constants for the line follower configuration
