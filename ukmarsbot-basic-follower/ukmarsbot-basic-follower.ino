@@ -1,17 +1,16 @@
 
-#include <Arduino.h>
-// #include "PID_v1.h"
 #include "blinker.h"
 #include "board.h"
 #include "cli.h"
 #include "commands.h"
 #include "encoders.h"
-
 #include "motors.h"
 #include "profile.h"
 #include "sensors.h"
 #include "settings.h"
+#include "stopwatch.h"
 #include "systick.h"
+#include <Arduino.h>
 
 Blinker blinker = Blinker(LED_BUILTIN).setPeriod(1000).setDuty(50);
 
@@ -49,10 +48,10 @@ void setup() {
   Serial.begin(BAUDRATE);
   settingsRead();
 
-  Serial.println(settings.leftFFSpeedFwd, 5);
-  Serial.println(settings.rightFFSpeedFwd, 5);
-  Serial.println(settings.leftFFStaticFwd, 5);
-  Serial.println(settings.rightFFStaticFwd, 5);
+  // Serial.println(settings.forward_ff, 5);
+  // Serial.println(settings.rightFFSpeedFwd, 5);
+  // Serial.println(settings.leftFFStaticFwd, 5);
+  // Serial.println(settings.rightFFStaticFwd, 5);
   Serial.println(settings.fwdKP, 5);
   Serial.println(settings.fwdKD, 5);
   Serial.println(settings.mmPerCount, 5);
@@ -75,7 +74,11 @@ void setup() {
 }
 
 void execute() {
-  Args args = cliSplit();
+  Args args = cliSplit(); // can take 30-80 ms
+  if (args.argc == 0) {
+    return;
+  }
+  // Scanning the list may take 300 ms. More if further items aere added
   if (strcmp_P(args.argv[0], PSTR("WRITE")) == 0) {
     settingsWrite();
     Serial.println(F("OK - Settings written to EEPROM"));
@@ -91,13 +94,17 @@ void execute() {
   } else if (strcmp_P(args.argv[0], PSTR("FUDGE")) == 0) {
     cmdSetGet(settings.fudge, 0.0f, 10.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("FWDKP")) == 0) {
-    cmdSetGet(fwd.mKP, 0.0f, 10.0f, args);
+    cmdSetGet(fwd_controller.mKP, 0.0f, 10.0f, args);
+  } else if (strcmp_P(args.argv[0], PSTR("FWDKI")) == 0) {
+    cmdSetGet(fwd_controller.mKI, 0.0f, 10.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("FWDKD")) == 0) {
-    cmdSetGet(fwd.mKD, 0.0f, 10.0f, args);
+    cmdSetGet(fwd_controller.mKD, 0.0f, 10.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("ROTKP")) == 0) {
-    cmdSetGet(rot.mKP, 0.0f, 10.0f, args);
+    cmdSetGet(rot_controller.mKP, 0.0f, 10.0f, args);
+  } else if (strcmp_P(args.argv[0], PSTR("ROTKI")) == 0) {
+    cmdSetGet(rot_controller.mKI, 0.0f, 10.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("ROTKD")) == 0) {
-    cmdSetGet(rot.mKD, 0.0f, 20.0f, args);
+    cmdSetGet(rot_controller.mKD, 0.0f, 20.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("LINEKP")) == 0) {
     cmdSetGet(settings.lineKP, 0.0f, 50.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("LINEKD")) == 0) {
@@ -162,6 +169,8 @@ void execute() {
     sensorsDisable();
   } else if (strcmp_P(args.argv[0], PSTR("SEARCH")) == 0) {
     cmdFollowWall();
+  } else {
+    Serial.println("ERR");
   }
 }
 

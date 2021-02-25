@@ -1,12 +1,15 @@
 #ifndef MOTORS_H
 #define MOTORS_H
 
+#include "pid.h"
 #include <arduino.h>
-
 /***
  * The motors module provides low  control of the drive motors
  * in a two-wheel differential drive robot.
  */
+
+extern PID fwd_controller;
+extern PID rot_controller;
 
 extern bool motor_controllers_enabled;
 

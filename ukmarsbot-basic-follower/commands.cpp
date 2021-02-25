@@ -456,7 +456,6 @@ void sendProfileData(int timeStamp, Profile &prof) {
   float actSpeed = encoderSpeed;
   float actAngle = encoderAngle;
   float actOmega = encoderOmega;
-  float control = prof.mControlOutput;
   // send it at leisure
   Serial.print(timeStamp);
   Serial.print(' ');
@@ -471,8 +470,6 @@ void sendProfileData(int timeStamp, Profile &prof) {
   Serial.print(actAngle);
   Serial.print(' ');
   Serial.print(actOmega);
-  Serial.print(' ');
-  Serial.print(control);
   Serial.print(' ');
   Serial.print(gSensorLeftWall);
   Serial.print(' ');

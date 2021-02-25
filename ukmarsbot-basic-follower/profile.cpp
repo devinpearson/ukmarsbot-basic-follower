@@ -19,8 +19,6 @@ void Profile::reset() {
   mCurrentSpeed = 0;
   mTargetSpeed = 0;
   mPosition = 0;
-  mError = 0;
-  mOldError = 0;
   mState = FINISHED;
   interrupts();
 }
@@ -116,25 +114,4 @@ void Profile::update() {
   }
 }
 
-void Profile::setMode(int mode) {
-  if (mMode == mode) {
-    return;
-  }
-  if (mode == AUTOMATIC) {
-    // mError = 0;
-    mOldError = mError;
-  }
-  mMode = mode;
-}
 
-void Profile::controllerUpdate() {
-  float input = *mFeedback;
-  mError += mCurrentSpeed * LOOP_INTERVAL;
-  mError -= input * LOOP_INTERVAL;
-  float dError = mError - mOldError;
-  mOldError = mError;
-  if (mMode == MANUAL) {
-    return;
-  }
-  mControlOutput = mKP * mError + mKD * dError;
-}

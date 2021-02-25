@@ -34,7 +34,7 @@ class Profile {
          FINISHED };
   enum { MANUAL,
          AUTOMATIC };
-  explicit Profile(float *feedback) : mFeedback(feedback) { reset(); }
+  explicit Profile(float *feedback) { reset(); }
   void reset();
   /***
    * Begins a make_move sequence. The parameters are set up and the controllers initialised.
@@ -75,20 +75,8 @@ class Profile {
    */
   void adjust(float adjustment);
 
-  /***
-   * controllerUpdate() is called every system tick from update()
-   * It will calculate the output voltage needed for the motors for this profile.
-   * Note that the forward and rotation profile output voltages must be combined
-   * to get the individual motor drive voltages.
-   */
-  void controllerUpdate();
 
-  /***
-   * The profiler can be in one of two modes:
-   * MANUAL    - the controller is not active and the user can set the output voltage
-   * AUTOMATIC - the profile uses its PD controller to set the ouput voltage
-   */
-  void setMode(int mode);
+
 
   float mAcceleration = 0;
   volatile float mCurrentSpeed = 0;
@@ -96,17 +84,8 @@ class Profile {
   float mEndSpeed = 0;
   volatile float mPosition = 0;
   float mEndPosition = 0;
-  int8_t mMode = AUTOMATIC;
   volatile int8_t mState = FINISHED;
   int8_t mDirection = 1;
-  float mKP = 0;
-  float mKD = 0;
-  float *mFeedback = nullptr;
-  float mError = 0;
-  float mOldError = 0;
-
-  float mLastInput = 0;
-  float mControlOutput = 0;
 };
 
 extern Profile fwd;

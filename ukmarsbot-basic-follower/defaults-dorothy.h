@@ -1,7 +1,7 @@
 #ifndef DOROTHY
 #define DOROTHY
 
-#define SETTINGS_VERSION 0x01
+#define SETTINGS_VERSION 0x02
 
 #define DEFAULTS_ROBOT_MODE MODE_MAZE
 const int SENSOR_COUNT = 4;
@@ -28,11 +28,13 @@ const int EEPROM_ADDR_SETTINGS = 0x0000;
 // rotation uses the difference between the encoders
 #define DEFAULTS_DEG_PER_COUNT ((360.0 * DEFAULTS_MM_PER_COUNT) / (2.0 * PI * MOUSE_RADIUS))
 
-#define DEFAULTS_FWD_KP 1.0
-#define DEFAULTS_FWD_KD 5.0
+#define DEFAULTS_FWD_KP 0.05
+#define DEFAULTS_FWD_KI 1.0
+#define DEFAULTS_FWD_KD 0.0
 
-#define DEFAULTS_ROT_KP 0.7
-#define DEFAULTS_ROT_KD 2.0
+#define DEFAULTS_ROT_KP 0.05
+#define DEFAULTS_ROT_KI 1.0
+#define DEFAULTS_ROT_KD 0.0
 
 // controller constants for the line follower configuration
 #define DEFAULTS_LINE_KP 1.5
@@ -48,19 +50,7 @@ const int EEPROM_ADDR_SETTINGS = 0x0000;
 #define DEFAULTS_EMITTER_ON_TIME 50
 
 // Motor Feedforward
-#define DEFAULTS_LEFT_FF_SPEED_FWD 0.00347
-#define DEFAULTS_LEFT_FF_SPEED_REV 0.00347
-#define DEFAULTS_LEFT_FF_ACC_FWD 0.000362
-#define DEFAULTS_LEFT_FF_ACC_REV 0.000362
-#define DEFAULTS_LEFT_FF_STATIC_FWD 0.317
-#define DEFAULTS_LEFT_FF_STATIC_REV 0.317
-
-#define DEFAULTS_RIGHT_FF_SPEED_FWD 0.00347
-#define DEFAULTS_RIGHT_FF_SPEED_REV 0.00347
-#define DEFAULTS_RIGHT_FF_ACC_FWD 0.000362
-#define DEFAULTS_RIGHT_FF_ACC_REV 0.000362
-#define DEFAULTS_RIGHT_FF_STATIC_FWD 0.317
-#define DEFAULTS_RIGHT_FF_STATIC_REV 0.317
+#define DEFAULTS_SPEED_FF 0.00347
 
 // Line sensor thresholds
 const float DEFAULTS_LINE_WIDTH = 19.0;              // ADJUST THIS so that CTE is roughly equal to the error in mm

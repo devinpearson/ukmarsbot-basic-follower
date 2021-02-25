@@ -1,44 +1,41 @@
 
 #include "motors.h"
 #include "digitalWriteFast.h"
+#include "encoders.h"
+#include "pid.h"
 #include "profile.h"
 #include "settings.h"
 #include <arduino.h>
 
+PID fwd_controller(defaults.fwdKP, defaults.fwdKI, defaults.fwdKD);
+PID rot_controller(defaults.rotKP, defaults.rotKI, defaults.rotKD);
+
 bool motor_controllers_enabled;
-
-// float fwdError;
-// float rotError;
-
-// float fwdVolts;
-// float rotVolts;
 
 void setup_motor_controllers() {
   motor_controllers_enabled = false;
-  fwd.mKP = settings.fwdKP;
-  fwd.mKD = settings.fwdKD;
-  rot.mKP = settings.rotKP;
-  rot.mKD = settings.rotKD;
+  fwd_controller.set_tunings(settings.fwdKP, settings.fwdKI, settings.fwdKD);
+  fwd_controller.set_tunings(settings.rotKP, settings.rotKI, settings.rotKD);
 }
 
 void update_motor_controllers() {
-  fwd.controllerUpdate();
-  rot.controllerUpdate();
   // assume both motors behave the same
   const float k_velocity_ff = (1.0 / 280.0);
 
-  float left_volts = 0;
-  float right_volts = 0;
+  fwd_controller.compute(encoderSpeed, fwd.mCurrentSpeed);
+  rot_controller.compute(encoderOmega, rot.mCurrentSpeed);
 
-  left_volts += fwd.mControlOutput;
-  right_volts += fwd.mControlOutput;
+  float fwd_volts = fwd_controller.output();
+  float rot_volts = rot_controller.output();
 
-  left_volts -= rot.mControlOutput;
-  right_volts += rot.mControlOutput;
+  float left_volts = fwd_volts - rot_volts;
+  float right_volts = fwd_volts + rot_volts;
+
+  left_volts -= rot_volts;
+  right_volts += rot_volts;
 
   float fwd_ff = fwd.mCurrentSpeed * k_velocity_ff;
   float rot_ff = rot.mCurrentSpeed * (MOUSE_RADIUS / (57.29)) * k_velocity_ff;
-  // rot_ff = 0;
 
   left_volts += fwd_ff;
   right_volts += fwd_ff;

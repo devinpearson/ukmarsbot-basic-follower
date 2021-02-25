@@ -179,7 +179,7 @@ void sensorsShow() {
 /*********************************** Line tracking **************************/
 float lineSensorUpdate() {
   if (settings.mode != MODE_LINE) {
-    return;
+    return 0;
   }
   gSensorStartMarker = sensor[0];
   gSensorRight = sensor[1];

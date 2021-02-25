@@ -12,25 +12,16 @@ struct SettingsData {
   float mmPerCount;
   float degPerCount;
   float fwdKP;
+  float fwdKI;
   float fwdKD;
   float rotKP;
+  float rotKI;
   float rotKD;
   float lineKP;
   float lineKD;
   float wallKP;
   float wallKD;
-  float leftFFSpeedFwd;
-  float leftFFSpeedRev;
-  float leftFFAccFwd;
-  float leftFFAccRev;
-  float leftFFStaticFwd;
-  float leftFFStaticRev;
-  float rightFFSpeedFwd;
-  float rightFFSpeedRev;
-  float rightFFAccFwd;
-  float rightFFAccRev;
-  float rightFFStaticFwd;
-  float rightFFStaticRev;
+  float forward_ff; // TODO: the feedforward settings are just for fwd and rot
   float fudge;
 };
 
