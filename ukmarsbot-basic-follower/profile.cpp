@@ -1,11 +1,13 @@
 
 #include "profile.h"
 #include "defaults.h"
+#include "digitalWriteFast.h"
 #include "encoders.h"
 #include "motors.h"
 #include "sensors.h"
 #include "settings.h"
 #include <arduino.h>
+#include <util/atomic.h>
 
 /***
  * Speeds are used for feedback because the position is changed at the start
@@ -36,15 +38,15 @@ void Profile::start_move(float distance, float topSpeed, float endSpeed, float a
   if (endSpeed > topSpeed) {
     endSpeed = topSpeed;
   }
-  noInterrupts();
-  mDirection = sign;
-  mPosition = 0;
-  mEndPosition = distance;
-  mTargetSpeed = sign * fabsf(topSpeed);
-  mEndSpeed = sign * fabsf(endSpeed);
-  mAcceleration = fabsf(acceleration);
-  mState = ACCELERATE;
-  interrupts();
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    mDirection = sign;
+    mPosition = 0;
+    mEndPosition = distance;
+    mTargetSpeed = sign * fabsf(topSpeed);
+    mEndSpeed = sign * fabsf(endSpeed);
+    mAcceleration = fabsf(acceleration);
+    mState = ACCELERATE;
+  }
 }
 
 void Profile::make_move(float distance, float topSpeed, float endSpeed, float acceleration) {
@@ -75,7 +77,7 @@ void Profile::adjust(float adjustment) {
   }
 }
 
-//TODO: Time this method!
+// Takes about 100us to run
 void Profile::update() {
   if (mState == ACCELERATE) {
     float deceleration = get_braking_acceleration(fabsf(mEndPosition) - fabsf(mPosition), mCurrentSpeed, mEndSpeed);
@@ -113,5 +115,3 @@ void Profile::update() {
     }
   }
 }
-
-

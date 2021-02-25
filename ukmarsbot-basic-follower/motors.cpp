@@ -7,8 +7,8 @@
 #include "settings.h"
 #include <arduino.h>
 
-PID fwd_controller(defaults.fwdKP, defaults.fwdKI, defaults.fwdKD);
-PID rot_controller(defaults.rotKP, defaults.rotKI, defaults.rotKD);
+PID fwd_controller(defaults.fwdKP, defaults.fwdKI, defaults.fwdKD,&encoderSpeed,&fwd.mCurrentSpeed);
+PID rot_controller(defaults.rotKP, defaults.rotKI, defaults.rotKD,&encoderOmega,&rot.mCurrentSpeed);
 
 bool motor_controllers_enabled;
 bool feedforward_enabled;
@@ -25,11 +25,14 @@ void update_motor_controllers() {
   // assume both motors behave the same
   const float k_velocity_ff = (1.0 / 280.0);
 
-  fwd_controller.compute(encoderSpeed, fwd.mCurrentSpeed);
-  rot_controller.compute(encoderOmega, rot.mCurrentSpeed);
+  fwd_controller.compute();
+  rot_controller.compute();
 
-  float fwd_volts = fwd_controller.output();
-  float rot_volts = rot_controller.output();
+  float fwd_volts = 0;
+  float rot_volts = 0;
+
+  fwd_volts += fwd_controller.output();
+  rot_volts += rot_controller.output();
 
   float left_volts = fwd_volts - rot_volts;
   float right_volts = fwd_volts + rot_volts;
@@ -42,16 +45,17 @@ void update_motor_controllers() {
 
   left_volts -= rot_ff;
   right_volts += rot_ff;
-
-  set_left_motor_volts(left_volts);
-  set_right_motor_volts(right_volts);
+  if (motor_controllers_enabled) {
+    set_left_motor_volts(left_volts);
+    set_right_motor_volts(right_volts);
+  }
 }
 
 /****************************************************************************/
 /*   MOTORS and PWM                                                         */
 /****************************************************************************/
 
-static float motor_battery_comp = 255.0f / MAX_MOTOR_VOLTS;
+float motor_battery_comp = 255.0f / MAX_MOTOR_VOLTS;
 
 void setup_motors() {
   pinMode(MOTOR_LEFT_DIR, OUTPUT);

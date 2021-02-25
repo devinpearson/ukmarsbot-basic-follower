@@ -11,6 +11,7 @@
 #include "systick.h"
 #include "twiddle.h"
 #include <arduino.h>
+#include <util/atomic.h>
 
 void cmdFilter(float f) {
   float iirOut[2];
@@ -445,17 +446,25 @@ void cmdTestRot(Args &args) {
 }
 
 void sendProfileHeader() {
-  Serial.println(F("time setPos setSpeed actPos actSpeed encAngle encOmega ctrl Left Right"));
+  Serial.println(F("time setPos setSpeed actPos actSpeed encAngle encOmega LeftVolts RightVolts"));
 }
 
 void sendProfileData(int timeStamp, Profile &prof) {
   // gather the data quickly for consistency
-  float setPos = prof.mPosition;
-  float setSpeed = prof.mCurrentSpeed;
-  float actPos = encoderPosition;
-  float actSpeed = encoderSpeed;
-  float actAngle = encoderAngle;
-  float actOmega = encoderOmega;
+  float setPos;
+  float setSpeed;
+  float actPos;
+  float actSpeed;
+  float actAngle;
+  float actOmega;
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    setSpeed = prof.mCurrentSpeed;
+    setPos = prof.mPosition;
+    actPos = encoderPosition;
+    actSpeed = encoderSpeed;
+    actAngle = encoderAngle;
+    actOmega = encoderOmega;
+  }
   // send it at leisure
   Serial.print(timeStamp);
   Serial.print(' ');
@@ -471,9 +480,9 @@ void sendProfileData(int timeStamp, Profile &prof) {
   Serial.print(' ');
   Serial.print(actOmega);
   Serial.print(' ');
-  Serial.print(left_motor_volts);
+  Serial.print(fwd_controller.output());
   Serial.print(' ');
-  Serial.print(right_motor_volts);
+  Serial.print(rot_controller.output());
   Serial.println();
 }
 
@@ -492,14 +501,14 @@ void cmdTestMove(Args &args) {
   if (accel == 0) {
     accel = 2000;
   }
-  // waitForButtonClick();
   delay(500);
   sendProfileHeader();
   encoderReset();
   sensorsEnable();
-  // gSteeringEnabled = true;
   fwd.reset();
   rot.reset();
+  fwd_controller.Initialize();
+  rot_controller.Initialize();
   motor_controllers_enabled = true;
   t = millis();
   fwd.start_move(dist, topSpeed, endSpeed, accel);

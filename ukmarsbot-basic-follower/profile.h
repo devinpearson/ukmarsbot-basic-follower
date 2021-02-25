@@ -75,11 +75,8 @@ class Profile {
    */
   void adjust(float adjustment);
 
-
-
-
   float mAcceleration = 0;
-  volatile float mCurrentSpeed = 0;
+  float mCurrentSpeed = 0;
   float mTargetSpeed = 0;
   float mEndSpeed = 0;
   volatile float mPosition = 0;
