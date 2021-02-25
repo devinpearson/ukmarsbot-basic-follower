@@ -48,10 +48,6 @@ void setup() {
   Serial.begin(BAUDRATE);
   settingsRead();
 
-  // Serial.println(settings.forward_ff, 5);
-  // Serial.println(settings.rightFFSpeedFwd, 5);
-  // Serial.println(settings.leftFFStaticFwd, 5);
-  // Serial.println(settings.rightFFStaticFwd, 5);
   Serial.println(settings.fwdKP, 5);
   Serial.println(settings.fwdKD, 5);
   Serial.println(settings.mmPerCount, 5);
@@ -59,6 +55,8 @@ void setup() {
   Serial.println(settings.mode, 5);
   Serial.println(settings.wallKP, 5);
   Serial.println(settings.wallKD, 5);
+  Serial.println(motor_battery_comp);
+
 
   setup_systick();
   pinMode(USER_IO, OUTPUT);
