@@ -147,7 +147,7 @@ void sensorsSetup() {
 // sensors are always read with a pulsed emitter
 void sensorsUpdate() {
   int tmp[SENSOR_COUNT];
-  batteryVolts = analogRead(BATTERY_VOLTS) * (1 / 102.4);
+  batteryVolts = analogRead(BATTERY_VOLTS) * (2.0 * 5.0 / 1024.0);
   functionValue = analogRead(FUNCTION);
   if (!sensorsEnabled) {
     for (int i = 0; i < SENSOR_COUNT; i++) {
