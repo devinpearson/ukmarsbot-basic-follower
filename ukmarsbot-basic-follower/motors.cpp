@@ -11,6 +11,9 @@ PID fwd_controller(defaults.fwdKP, defaults.fwdKI, defaults.fwdKD);
 PID rot_controller(defaults.rotKP, defaults.rotKI, defaults.rotKD);
 
 bool motor_controllers_enabled;
+bool feedforward_enabled;
+volatile float left_motor_volts;
+volatile float right_motor_volts;
 
 void setup_motor_controllers() {
   motor_controllers_enabled = false;
@@ -30,9 +33,6 @@ void update_motor_controllers() {
 
   float left_volts = fwd_volts - rot_volts;
   float right_volts = fwd_volts + rot_volts;
-
-  left_volts -= rot_volts;
-  right_volts += rot_volts;
 
   float fwd_ff = fwd.mCurrentSpeed * k_velocity_ff;
   float rot_ff = rot.mCurrentSpeed * (MOUSE_RADIUS / (57.29)) * k_velocity_ff;
@@ -92,17 +92,21 @@ void set_right_motor_pwm(int pwm) {
 }
 
 float set_motor_battery_comp(float battery_volts) {
-  motor_battery_comp = 255.8f / battery_volts;
+  motor_battery_comp = 255.0f / battery_volts;
   return motor_battery_comp;
 }
 
 void set_left_motor_volts(float volts) {
-  int motorPWM = (255 * volts) / batteryVolts;
+  volts = constrain(volts, -MAX_MOTOR_VOLTS, MAX_MOTOR_VOLTS);
+  left_motor_volts = volts;
+  int motorPWM = motor_battery_comp * volts;
   set_left_motor_pwm(motorPWM);
 }
 
 void set_right_motor_volts(float volts) {
-  int motorPWM = (255 * volts) / batteryVolts;
+  volts = constrain(volts, -MAX_MOTOR_VOLTS, MAX_MOTOR_VOLTS);
+  right_motor_volts = volts;
+  int motorPWM = motor_battery_comp * volts;
   set_right_motor_pwm(motorPWM);
 }
 

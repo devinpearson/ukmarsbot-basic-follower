@@ -12,7 +12,11 @@ extern PID fwd_controller;
 extern PID rot_controller;
 
 extern bool motor_controllers_enabled;
+extern bool feedforward_enabled;
+extern volatile float left_motor_volts;
+extern volatile float right_motor_volts;
 
+extern float motor_battery_comp;
 void update_motor_controllers();
 void setup_motor_controllers();
 
