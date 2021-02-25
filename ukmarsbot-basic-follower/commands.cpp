@@ -445,7 +445,7 @@ void cmdTestRot(Args &args) {
 }
 
 void sendProfileHeader() {
-  Serial.println(F("time setPos setSpeed actPos actSpeed encAngle encOmega ctrl Left Right steer"));
+  Serial.println(F("time setPos setSpeed actPos actSpeed encAngle encOmega ctrl Left Right"));
 }
 
 void sendProfileData(int timeStamp, Profile &prof) {
@@ -471,11 +471,9 @@ void sendProfileData(int timeStamp, Profile &prof) {
   Serial.print(' ');
   Serial.print(actOmega);
   Serial.print(' ');
-  Serial.print(gSensorLeftWall);
+  Serial.print(left_motor_volts);
   Serial.print(' ');
-  Serial.print(gSensorRightWall);
-  Serial.print(' ');
-  Serial.print(gSteeringControl);
+  Serial.print(right_motor_volts);
   Serial.println();
 }
 
@@ -499,7 +497,7 @@ void cmdTestMove(Args &args) {
   sendProfileHeader();
   encoderReset();
   sensorsEnable();
-  gSteeringEnabled = true;
+  // gSteeringEnabled = true;
   fwd.reset();
   rot.reset();
   motor_controllers_enabled = true;
