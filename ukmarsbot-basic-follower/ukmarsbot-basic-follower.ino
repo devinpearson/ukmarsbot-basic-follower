@@ -12,8 +12,6 @@
 #include "systick.h"
 #include <Arduino.h>
 
-Blinker blinker = Blinker(LED_BUILTIN).setPeriod(1000).setDuty(50);
-
 // overload the standard map() to get floating point results
 float map(long x, long in_min, long in_max, float out_min, float out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
@@ -23,26 +21,6 @@ uint32_t updateInterval = 10; // milliseconds
 
 /****************************************************************************/
 
-uint8_t checkReset() {
-  uint8_t status = MCUSR;
-  if (status & 1) {
-    Serial.println(F("Power on reset"));
-  }
-  if (status & 2) {
-    Serial.println(F("External Reset")); // reset button
-  }
-  if (status & 4) {
-    Serial.println(F("Brownout reset"));
-  }
-  if (status & 8) {
-    Serial.println(F("Watchdog reset"));
-  }
-  if (status & 32) {
-    Serial.println(F("Software reset"));
-  }
-  MCUSR = 0;
-  return status;
-}
 
 void setup() {
   Serial.begin(BAUDRATE);
@@ -115,8 +93,6 @@ void execute() {
     Serial.println(F(" Volts"));
   } else if (strcmp_P(args.argv[0], PSTR("ENC")) == 0) {
     cmdShowEncoders(args);
-  } else if (strcmp_P(args.argv[0], PSTR("BLINK")) == 0) {
-    cmdSetGet(blinker.mDuty, int8_t(0), int8_t(100), args);
   } else if (strcmp_P(args.argv[0], PSTR("PWM")) == 0) {
     cmdTestMotors(args);
   } else if (strcmp_P(args.argv[0], PSTR("ROT")) == 0) {
@@ -172,7 +148,6 @@ void execute() {
 }
 
 void loop() {
-  blinker.update();
   if (getLine()) {
     execute();
     clearLine();
