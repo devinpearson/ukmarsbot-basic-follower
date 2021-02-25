@@ -91,18 +91,18 @@ void execute() {
     Serial.println(F("OK - Settings cleared to defaults and saved to EEPROM"));
   } else if (strcmp_P(args.argv[0], PSTR("FUDGE")) == 0) {
     cmdSetGet(settings.fudge, 0.0f, 10.0f, args);
-  } else if (strcmp_P(args.argv[0], PSTR("FWDKP")) == 0) {
-    cmdSetGet(fwd_controller.mKP, 0.0f, 10.0f, args);
-  } else if (strcmp_P(args.argv[0], PSTR("FWDKI")) == 0) {
-    cmdSetGet(fwd_controller.mKI, 0.0f, 10.0f, args);
-  } else if (strcmp_P(args.argv[0], PSTR("FWDKD")) == 0) {
-    cmdSetGet(fwd_controller.mKD, 0.0f, 10.0f, args);
-  } else if (strcmp_P(args.argv[0], PSTR("ROTKP")) == 0) {
-    cmdSetGet(rot_controller.mKP, 0.0f, 10.0f, args);
-  } else if (strcmp_P(args.argv[0], PSTR("ROTKI")) == 0) {
-    cmdSetGet(rot_controller.mKI, 0.0f, 10.0f, args);
-  } else if (strcmp_P(args.argv[0], PSTR("ROTKD")) == 0) {
-    cmdSetGet(rot_controller.mKD, 0.0f, 20.0f, args);
+  // } else if (strcmp_P(args.argv[0], PSTR("FWDKP")) == 0) {
+  //   cmdSetGet(fwd_controller.mKP, 0.0f, 10.0f, args);
+  // } else if (strcmp_P(args.argv[0], PSTR("FWDKI")) == 0) {
+  //   cmdSetGet(fwd_controller.mKI, 0.0f, 10.0f, args);
+  // } else if (strcmp_P(args.argv[0], PSTR("FWDKD")) == 0) {
+  //   cmdSetGet(fwd_controller.mKD, 0.0f, 10.0f, args);
+  // } else if (strcmp_P(args.argv[0], PSTR("ROTKP")) == 0) {
+  //   cmdSetGet(rot_controller.mKP, 0.0f, 10.0f, args);
+  // } else if (strcmp_P(args.argv[0], PSTR("ROTKI")) == 0) {
+  //   cmdSetGet(rot_controller.mKI, 0.0f, 10.0f, args);
+  // } else if (strcmp_P(args.argv[0], PSTR("ROTKD")) == 0) {
+  //   cmdSetGet(rot_controller.mKD, 0.0f, 20.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("LINEKP")) == 0) {
     cmdSetGet(settings.lineKP, 0.0f, 50.0f, args);
   } else if (strcmp_P(args.argv[0], PSTR("LINEKD")) == 0) {
