@@ -32,19 +32,14 @@ void turn(const int direction);
 void goHalfCell(const bool stopAtEnd);
 
 template <class T>
-void cmdSetGet(T &var, T min, T max, Args &args) {
+T cmdSetGet(T &var,  Args &args) {
   if (args.argc > 1) {
     var = atof(args.argv[1]);
-    if (var > max) {
-      var = max;
-    }
-    if (var < min) {
-      var = min;
-    }
   }
   Serial.print(args.argv[0]);
   Serial.print(F(" = "));
   Serial.println(var);
+  return var;
 }
 
 #endif
