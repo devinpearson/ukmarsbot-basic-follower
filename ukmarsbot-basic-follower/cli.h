@@ -6,7 +6,7 @@ typedef int command(const char *const argv[]);
 
 const int MAX_ARGC = 16;
 struct Args {
-  char *argv[MAX_ARGC];
+  const char *argv[MAX_ARGC];
   int argc;
 };
 

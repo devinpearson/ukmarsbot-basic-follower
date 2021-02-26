@@ -21,7 +21,6 @@ uint32_t updateInterval = 10; // milliseconds
 
 /****************************************************************************/
 
-
 void setup() {
   Serial.begin(BAUDRATE);
   settingsRead();
@@ -54,7 +53,11 @@ void execute() {
     return;
   }
   // Scanning the list may take 300 ms. More if further items aere added
-  if (strcmp_P(args.argv[0], PSTR("WRITE")) == 0) {
+  if (strcmp_P(args.argv[0], PSTR("$")) == 0) {
+    for (int i = 0; i < args.argc; i++) {
+      Serial.println(args.argv[i]);
+    }
+  } else if (strcmp_P(args.argv[0], PSTR("WRITE")) == 0) {
     settingsWrite();
     Serial.println(F("OK - Settings written to EEPROM"));
   } else if (strcmp_P(args.argv[0], PSTR("READ")) == 0) {
@@ -67,25 +70,25 @@ void execute() {
     settingsReset();
     Serial.println(F("OK - Settings cleared to defaults and saved to EEPROM"));
   } else if (strcmp_P(args.argv[0], PSTR("FUDGE")) == 0) {
-    cmdSetGet(settings.fudge,args);
-    } else if (strcmp_P(args.argv[0], PSTR("FWDKP")) == 0) {
-      cmdSetGet(fwd_controller.mKP,args);
-    } else if (strcmp_P(args.argv[0], PSTR("FWDKI")) == 0) {
-      cmdSetGet(fwd_controller.mKI, args);
-    } else if (strcmp_P(args.argv[0], PSTR("FWDKD")) == 0) {
-      cmdSetGet(fwd_controller.mKD, args);
-    } else if (strcmp_P(args.argv[0], PSTR("ROTKP")) == 0) {
-      cmdSetGet(rot_controller.mKP,args);
-    } else if (strcmp_P(args.argv[0], PSTR("ROTKI")) == 0) {
-      cmdSetGet(rot_controller.mKI, args);
-    } else if (strcmp_P(args.argv[0], PSTR("ROTKD")) == 0) {
-      cmdSetGet(rot_controller.mKD, args);
+    cmdSetGet(settings.fudge, args);
+  } else if (strcmp_P(args.argv[0], PSTR("FWDKP")) == 0) {
+    cmdSetGet(fwd_controller.mKP, args);
+  } else if (strcmp_P(args.argv[0], PSTR("FWDKI")) == 0) {
+    cmdSetGet(fwd_controller.mKI, args);
+  } else if (strcmp_P(args.argv[0], PSTR("FWDKD")) == 0) {
+    cmdSetGet(fwd_controller.mKD, args);
+  } else if (strcmp_P(args.argv[0], PSTR("ROTKP")) == 0) {
+    cmdSetGet(rot_controller.mKP, args);
+  } else if (strcmp_P(args.argv[0], PSTR("ROTKI")) == 0) {
+    cmdSetGet(rot_controller.mKI, args);
+  } else if (strcmp_P(args.argv[0], PSTR("ROTKD")) == 0) {
+    cmdSetGet(rot_controller.mKD, args);
   } else if (strcmp_P(args.argv[0], PSTR("LINEKP")) == 0) {
     cmdSetGet(settings.lineKP, args);
   } else if (strcmp_P(args.argv[0], PSTR("LINEKD")) == 0) {
     cmdSetGet(settings.lineKD, args);
   } else if (strcmp_P(args.argv[0], PSTR("WALLKP")) == 0) {
-    cmdSetGet(settings.wallKP,args);
+    cmdSetGet(settings.wallKP, args);
   } else if (strcmp_P(args.argv[0], PSTR("WALLKD")) == 0) {
     cmdSetGet(settings.wallKD, args);
   } else if (strcmp_P(args.argv[0], PSTR("BATT")) == 0) {
