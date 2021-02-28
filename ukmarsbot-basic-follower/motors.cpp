@@ -7,8 +7,8 @@
 #include "settings.h"
 #include <arduino.h>
 
-PID fwd_controller(defaults.fwdKP, defaults.fwdKI, defaults.fwdKD,&encoderSpeed,&fwd.mCurrentSpeed);
-PID rot_controller(defaults.rotKP, defaults.rotKI, defaults.rotKD,&encoderOmega,&rot.mCurrentSpeed);
+PID fwd_controller(defaults.fwdKP, defaults.fwdKI, defaults.fwdKD, &encoderSpeed, &fwd.mCurrentSpeed);
+PID rot_controller(defaults.rotKP, defaults.rotKI, defaults.rotKD, &encoderOmega, &rot.mCurrentSpeed);
 
 bool motor_controllers_enabled;
 bool feedforward_enabled;
@@ -116,22 +116,22 @@ void set_right_motor_volts(float volts) {
 
 void set_motor_pwm_frequency(int frequency) {
   switch (frequency) {
-  case PWM_31250_HZ:
-    // Divide by 1. frequency = 31.25 kHz;
-    bitClear(TCCR1B, CS11);
-    bitSet(TCCR1B, CS10);
-    break;
-  case PWM_3906_HZ:
-    // Divide by 8. frequency = 3.91 kHz;
-    bitSet(TCCR1B, CS11);
-    bitClear(TCCR1B, CS10);
-    break;
-  case PWM_488_HZ:
-  default:
-    // Divide by 64. frequency = 488Hz;
-    bitSet(TCCR1B, CS11);
-    bitSet(TCCR1B, CS10);
-    break;
+    case PWM_31250_HZ:
+      // Divide by 1. frequency = 31.25 kHz;
+      bitClear(TCCR1B, CS11);
+      bitSet(TCCR1B, CS10);
+      break;
+    case PWM_3906_HZ:
+      // Divide by 8. frequency = 3.91 kHz;
+      bitSet(TCCR1B, CS11);
+      bitClear(TCCR1B, CS10);
+      break;
+    case PWM_488_HZ:
+    default:
+      // Divide by 64. frequency = 488Hz;
+      bitSet(TCCR1B, CS11);
+      bitSet(TCCR1B, CS10);
+      break;
   }
 }
 

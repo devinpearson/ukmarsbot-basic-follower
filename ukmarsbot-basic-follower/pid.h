@@ -6,13 +6,13 @@
 
 class PID {
   public:
-  PID(float Kp, float Ki, float Kd, float * input, float * setpoint) : mKP(Kp),
-                                      mKI(Ki),
-                                      mKD(Kd),
-                                      mInput(input),
-                                      mSetpoint(setpoint){
+  PID(float Kp, float Ki, float Kd, float *input, float *setpoint) : mKP(Kp),
+                                                                     mKI(Ki),
+                                                                     mKD(Kd),
+                                                                     mInput(input),
+                                                                     mSetpoint(setpoint){
 
-                                      };
+                                                                     };
 
   // uses calculation describe in
   // http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/
@@ -76,7 +76,6 @@ class PID {
   // to save RAM, these could be arguments of compute()
   float *mInput;
   float *mSetpoint;
-
 };
 
 #endif

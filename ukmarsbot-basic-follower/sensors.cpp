@@ -79,20 +79,20 @@ float steeringUpdate() {
   float kD = 0;
   // always calculate the errors even if not used so that debugging is possible
   switch (settings.mode) {
-  case MODE_LINE: {
-    err = lineSensorUpdate();
-    kP = settings.lineKP;
-    kD = settings.lineKD;
-  } break;
-  case MODE_MAZE: {
-    err = wallSensorUpdate();
-    kP = settings.wallKP;
-    kD = settings.wallKD;
-  } break;
-  case MODE_NONE:
-  default: {
-    err = 0;
-  } break;
+    case MODE_LINE: {
+      err = lineSensorUpdate();
+      kP = settings.lineKP;
+      kD = settings.lineKD;
+    } break;
+    case MODE_MAZE: {
+      err = wallSensorUpdate();
+      kP = settings.wallKP;
+      kD = settings.wallKD;
+    } break;
+    case MODE_NONE:
+    default: {
+      err = 0;
+    } break;
   }
 
   if (!gSteeringEnabled) {

@@ -32,7 +32,7 @@ void turn(const int direction);
 void goHalfCell(const bool stopAtEnd);
 
 template <class T>
-T cmdSetGet(T &var,  Args &args) {
+T cmdSetGet(T &var, Args &args) {
   if (args.argc > 1) {
     var = atof(args.argv[1]);
   }
