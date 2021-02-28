@@ -46,7 +46,7 @@ struct _BASED {
 
 struct _BYTE_CODE {
   byte val;
-  _BYTE_CODE(byte v) : val(v) {}
+  explicit _BYTE_CODE(byte v) : val(v) {}
 };
 #define _BYTE(a) _BYTE_CODE(a)
 

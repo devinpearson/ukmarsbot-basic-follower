@@ -45,5 +45,4 @@ const int EEPROM_ADDR_SETTINGS = 0x0000;
 // Motor Feedforward
 #define DEFAULTS_SPEED_FF 0.00347
 
-
 #endif

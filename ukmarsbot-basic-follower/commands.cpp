@@ -258,21 +258,21 @@ float lineTrial() {
     digitalWrite(LED_RIGHT, markers & 2);
     digitalWrite(LED_LEFT, markers & 1);
     switch (runState) {
-    case STARTING:
-      if (markers == 3) {
-        runState = CROSSING;
-      }
-      break;
-    case CROSSING:
-      if (markers == 0) {
-        runState = RUNNING;
-      }
-      break;
-    case RUNNING:
-      if (markers == 3) {
-        runState = STOPPING;
-      }
-      break;
+      case STARTING:
+        if (markers == 3) {
+          runState = CROSSING;
+        }
+        break;
+      case CROSSING:
+        if (markers == 0) {
+          runState = RUNNING;
+        }
+        break;
+      case RUNNING:
+        if (markers == 3) {
+          runState = STOPPING;
+        }
+        break;
     }
     if (fwd.mPosition > 2520) {
       runState = STOPPING;
@@ -356,21 +356,21 @@ float cmdFollowLine(Args &args) {
     digitalWrite(LED_RIGHT, markers & 2);
     digitalWrite(LED_LEFT, markers & 1);
     switch (runState) {
-    case STARTING:
-      if (markers == 3) {
-        runState = CROSSING;
-      }
-      break;
-    case CROSSING:
-      if (markers == 0) {
-        runState = RUNNING;
-      }
-      break;
-    case RUNNING:
-      if (markers == 3) {
-        runState = STOPPING;
-      }
-      break;
+      case STARTING:
+        if (markers == 3) {
+          runState = CROSSING;
+        }
+        break;
+      case CROSSING:
+        if (markers == 0) {
+          runState = RUNNING;
+        }
+        break;
+      case RUNNING:
+        if (markers == 3) {
+          runState = STOPPING;
+        }
+        break;
     }
     if (fwd.mPosition > 2520) {
       runState = STOPPING;

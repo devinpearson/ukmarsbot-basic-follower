@@ -5,7 +5,7 @@ UseTab: Never
 IndentWidth: 2
 TabWidth: 2
 AllowShortIfStatementsOnASingleLine: false
-IndentCaseLabels: false
+IndentCaseLabels: true
 ColumnLimit: 0
 AccessModifierOffset: -4
 NamespaceIndentation: All

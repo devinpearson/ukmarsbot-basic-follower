@@ -43,8 +43,15 @@ int getLine() {
 
 Args cliSplit() {
   Args args = {0};
+  char *line = inputLine;
   char *token;
-  for (token = strtok(inputLine, " "); token != NULL; token = strtok(NULL, " ")) {
+  // special case for the single character parameter setting command
+  if (inputLine[0] == '$') {
+    args.argv[args.argc] = "$";
+    args.argc++;
+    line++;
+  }
+  for (token = strtok(line, " ,="); token != NULL; token = strtok(NULL, " ,=")) {
     args.argv[args.argc] = token;
     args.argc++;
     if (args.argc == MAX_ARGC)
