@@ -30,18 +30,18 @@ class PID {
     } else if (mOutputSum < -MAX_MOTOR_VOLTS) {
       mOutputSum = -MAX_MOTOR_VOLTS;
     }
-    float output = mKP * error;
-    output += mOutputSum;
-    output -= mKD * LOOP_FREQUENCY * dInput;
-    if (output > MAX_MOTOR_VOLTS) {
-      output = MAX_MOTOR_VOLTS;
-    } else if (output < -MAX_MOTOR_VOLTS) {
-      output = -MAX_MOTOR_VOLTS;
+    float next_output = mKP * error;
+    next_output += mOutputSum;
+    next_output -= mKD * LOOP_FREQUENCY * dInput;
+    if (next_output > MAX_MOTOR_VOLTS) {
+      next_output = MAX_MOTOR_VOLTS;
+    } else if (next_output < -MAX_MOTOR_VOLTS) {
+      next_output = -MAX_MOTOR_VOLTS;
     }
-    output = constrain(output, -MAX_MOTOR_VOLTS, MAX_MOTOR_VOLTS);
-    mOutput = output;
-    // don't limit the output - that will be done elsewhere
-    return output;
+    next_output = constrain(next_output, -MAX_MOTOR_VOLTS, MAX_MOTOR_VOLTS);
+    mOutput = next_output;
+    // don't limit the next_output - that will be done elsewhere
+    return next_output;
   }
 
   void set_tunings(float kp, float ki, float kd) {
