@@ -103,12 +103,31 @@ float steeringUpdate() {
   dTerm = kD * (err - oldError);
   oldError = err;
   pTerm = settings.wallKP * err;
+  // low pass filter the d term
   fTerm = 0.1 * (dTerm) + 0.9 * fTerm;
 
+  /***
+   * steering adjustments are proportional to speed because, at faster speeds
+   * a larger adjustment is needed to have the same effect by the time we
+   * next come to calculate the error.
+   * However, there must be some minimum amount of adjustment or the robot
+   * would not be able to steer reliably at very low speeds because the correction
+   * is too small
+   */
   float speedAdjust = constrain(fwd.mCurrentSpeed, 800, fwd.mCurrentSpeed);
+
+  // The actual control is a PD controllerwith a filtered D term
   gSteeringControl = speedAdjust * (pTerm + fTerm);
   gSteeringControl = constrain(gSteeringControl, -5, 5);
-  // gSteeringControl = adjustExponential(gSteeringControl, 0.5);
+
+  /***
+   * For the line follower (and maybe the wall follower - I don't know) it
+   * can be a good idea to adjust the response so that it is a little non-linear.
+   * Effectively, that means the gain is hogher for large errors.
+   */
+  if (settings.mode == MODE_LINE) {
+    gSteeringControl = adjustExponential(gSteeringControl, 0.5);
+  }
   return gSteeringControl;
 }
 
